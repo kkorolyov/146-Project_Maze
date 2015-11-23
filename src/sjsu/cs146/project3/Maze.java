@@ -18,9 +18,9 @@ public class Maze {
                 maze[i][j] = mazeRooms++;
             }
         }
-        //these two for loops initialize all of the rooms to point to the rooms to the left and below
-        //I wasn't sure if we should have the vertices point to all of the rooms around them, so
-        //I made them one directional for now
+        //these two for loops initialize all of the rooms to point to the rooms to the left, to the right, above and below
+        //if the adjacent room is within the maze. 
+        //EX: room 0 is the top left corner room and points at rooms 1 and 4; room 6 points to 3, 5, 7, and 10 
         for (int i = 0; i < rooms; i++) {
             adjList[i] = new LinkedList<Integer>();
         }
