@@ -21,14 +21,19 @@ public class Maze {
         //these two for loops initialize all of the rooms to point to the rooms to the left and below
         //I wasn't sure if we should have the vertices point to all of the rooms around them, so
         //I made them one directional for now
-        for (int i = 0; i < rooms-1; i++) {
+        for (int i = 0; i < rooms; i++) {
             adjList[i] = new LinkedList<Integer>();
         }
         for (int i = 0; i < rooms-1; i++) {
-            if(i%size != 3)
+            System.out.println("check " + i);
+            if(i%size != 3) {
                 adjList[i].add(i+1);
-            if(i < size * size - size)
+                adjList[i+1].add(i);
+            }
+            if(i < size * size - size) {
                 adjList[i].add(i+4);
+                adjList[i+4].add(i);
+            }
         } 
     }
 }
