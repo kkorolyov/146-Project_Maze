@@ -1,10 +1,18 @@
 package sjsu.cs146.project3;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class MazeK {
-	private Cell[] rooms;
+	private int size;
+	private Cell[] rooms;	// All Cell objects
+	private List<Integer>[] openNeighbors;	// All adjacent cell indices for each source cell index
 	
-	public MazeK(int size) {
+	@SuppressWarnings("unchecked")
+	public MazeK(int s) {
+		size = s;
 		rooms = new Cell[size * size];
+		openNeighbors = new LinkedList[size * size];
 		for (int i = 0; i < rooms.length; i++)	// Populate with completely enclosed cells
 			rooms[i] = new Cell();
 		
@@ -12,11 +20,51 @@ public class MazeK {
 		rooms[rooms.length - 1].removeWall(Wall.SOUTH);	// End cell
 	}
 	
+	/**
+	 * Breaks the wall between a source cell and its neighbor in the given direction.
+	 * @param cell source cell index
+	 * @param direction direction of neighbor
+	 */
+	public void breakWall(int cell, Wall direction) {
+		int neighbor = getNeighbor(cell, direction);
+		rooms[cell].removeWall(direction);	// Remove first wall
+		rooms[neighbor].removeOppositeWall(direction);	// Remove neighbor's opposite wall
+		
+		openNeighbors[cell].add(neighbor);	// Add to adjacency list
+		openNeighbors[neighbor].add(cell);	// Symmetrical add to adjacency list
+	}
+	
+	/**
+	 * @param cell source cell index
+	 * @param direction direction to check
+	 * @return index of neighboring cell in the specified direction
+	 */
+	public int getNeighbor(int cell, Wall direction) {
+		int neighbor = -1;
+		switch (direction) {
+			case NORTH:
+				neighbor = cell - size;
+				break;
+			case EAST:
+				neighbor = cell + 1;
+				break;
+			case SOUTH:
+				neighbor = cell + size;
+				break;
+			case WEST:
+				neighbor = cell - 1;
+				break;
+		}
+		if (neighbor < 0 || neighbor > size * size)
+			throw new IndexOutOfBoundsException(String.valueOf(neighbor));
+		return neighbor;
+	}
+	
 	private class Cell {
 		private Wall[] walls = new Wall[4];	// Cell has up to 4 walls
 		
 		/**
-		 * Constructs a completely-enclosed {@code Cell} (4 walls)
+		 * Constructs a new, completely-enclosed {@code Cell} (4 walls)
 		 */
 		public Cell() {
 			resetWalls();
@@ -54,7 +102,7 @@ public class MazeK {
 		/**
 		 * Removes the specified wall from the Cell.
 		 * @param removeWall wall to remove
-		 * @return {@code true} if wall located and removed
+		 * @return {@code true} if wall located and removed, {@code false} if otherwise
 		 */
 		public boolean removeWall(Wall removeWall) {
 			int removeWallIndex = getWallIndex(removeWall);
@@ -63,6 +111,29 @@ public class MazeK {
 				return true;
 			}
 			return false;
+		}
+		/**
+		 * Removes the wall opposite the specified wall from the Cell.
+		 * @param removeWall wall to remove opposite of
+		 * @return {@code true} if opposite wall located and removed, {@code false} if otherwise
+		 */
+		public boolean removeOppositeWall(Wall removeWall) {
+			Wall oppositeWall = null;
+			switch (removeWall) {
+				case NORTH:
+					oppositeWall = Wall.SOUTH;
+					break;
+				case EAST:
+					oppositeWall = Wall.WEST;
+					break;
+				case SOUTH:
+					oppositeWall = Wall.NORTH;
+					break;
+				case WEST:
+					oppositeWall = Wall.EAST;
+					break;
+			}
+			return removeWall(oppositeWall);
 		}
 		
 		/**
