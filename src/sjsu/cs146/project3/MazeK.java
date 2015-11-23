@@ -1,7 +1,6 @@
 package sjsu.cs146.project3;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class MazeK {
 	private int size;
@@ -18,6 +17,39 @@ public class MazeK {
 		
 		rooms[0].removeWall(Wall.NORTH);	// Start cell
 		rooms[rooms.length - 1].removeWall(Wall.SOUTH);	// End cell
+	}
+	
+	/**
+	 * Generates a random path from start cell to end cell.
+	 */
+	public void generateRandomPath() {
+		generateRandomPath(new Random());
+	}
+	/**
+	 * Generates a path from start cell to end cell using the specified seed.
+	 * @param seed seed to generate random path from
+	 */
+	public void generateRandomPath(long seed) {
+		generateRandomPath(new Random(seed));
+	}
+	private void generateRandomPath(Random random) {
+		Stack<Integer> cellStack = new Stack<>();
+		int currentCell = 0, visitedCells = 1, totalCells = size * size;
+		
+		while (visitedCells < totalCells) {
+			Integer[] neighbors = getLonelyNeighbors(currentCell);
+			if (neighbors.length > 0) {
+				int randomNeighbor = neighbors[0];	// Default to first lonely neighbor
+				if (neighbors.length > 1)
+					randomNeighbor = neighbors[random.nextInt(neighbors.length)];	// Choose random lonely neighbor
+				breakWall(currentCell, getDirection(currentCell, randomNeighbor));
+				cellStack.push(currentCell);
+				currentCell = randomNeighbor;
+				visitedCells++;
+			}
+			else
+				currentCell = cellStack.pop();
+		}
 	}
 	
 	/**
@@ -55,9 +87,36 @@ public class MazeK {
 				neighbor = cell - 1;
 				break;
 		}
-		if (neighbor < 0 || neighbor > size * size)
+		if (neighbor < 0 || neighbor > size * size - 1)
 			throw new IndexOutOfBoundsException(String.valueOf(neighbor));
 		return neighbor;
+	}
+	/**
+	 * @param cell source cell index
+	 * @param neighbor neighbor cell index
+	 * @return direction to move from source cell to neighbor
+	 */
+	public Wall getDirection(int cell, int neighbor) {
+		if (neighbor == (cell - size))
+			return Wall.NORTH;
+		else if (neighbor == (cell + 1))
+			return Wall.EAST;
+		else if (neighbor == (cell + size))
+			return Wall.SOUTH;
+		else if (neighbor == (cell - 1))
+			return Wall.WEST;
+		
+		return null;	// Specified neighbor is not a neighbor
+	}
+	
+	public Integer[] getLonelyNeighbors(int cell) {
+		List<Integer> lonelyNeighbors = new ArrayList<>(4);	// Max 4 neighbors
+		for (Wall direction : Wall.values()) {
+			int currentNeighborIndex = getNeighbor(cell, direction);
+			if (rooms[currentNeighborIndex].isIsolated())
+				lonelyNeighbors.add(currentNeighborIndex);
+		}
+		return lonelyNeighbors.toArray(new Integer[lonelyNeighbors.size()]);
 	}
 	
 	private class Cell {
@@ -144,6 +203,17 @@ public class MazeK {
 			if (getWallIndex(checkWall) >= 0)	// Wall found
 				return true;
 			return false;
+		}
+		
+		/**
+		 * @return {@code true} if all walls intact, {@code false} if at least 1 wall not intact
+		 */
+		public boolean isIsolated() {
+			for (Wall wall : Wall.values()) {
+				if (!hasWall(wall))
+					return true;	// At least 1 wall does not exist
+			}
+			return true;	// All walls exist
 		}
 		
 		/**
