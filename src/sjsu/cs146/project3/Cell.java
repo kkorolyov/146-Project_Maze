@@ -81,6 +81,17 @@ public class Cell {
 		}
 		return true;	// All walls exist
 	}
+	/**
+	 * @param ignore wall to not test
+	 * @return {@code true} if all walls besides ignored wall intact, {@code false} if otherwise
+	 */
+	public boolean isIsolated(Wall ignore) {
+		for (Wall wall : Wall.values()) {
+			if (!hasWall(wall) && wall != ignore)
+				return false;	// At least 1 non-ignored wall does not exist
+		}
+		return true;	// All walls besides ignored wall exist
+	}
 	
 	/**
 	 * @param wall wall to locate

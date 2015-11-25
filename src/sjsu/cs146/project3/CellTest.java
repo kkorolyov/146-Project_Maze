@@ -65,4 +65,13 @@ public class CellTest {
 			testCell.addWall(currentRemoved);	// Re-add to only test 1 removed wall at a time
 		}
 	}
+	@Test
+	public void testIsIsolatedIgnore() {
+		for (Wall currentIgnored : Wall.values()) {
+			assertTrue(testCell.isIsolated(currentIgnored));	// All walls intact
+			testCell.removeWall(currentIgnored);
+			assertTrue(testCell.isIsolated(currentIgnored));	// 1 removed and ignored wall
+			testCell.addWall(currentIgnored);	// Re-add to only test 1 removed wall at a time
+		}
+	}
 }

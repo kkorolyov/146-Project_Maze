@@ -84,16 +84,18 @@ public class Maze {
 				neighbor = cell - size;
 				break;
 			case EAST:
-				neighbor = cell + 1;
+				if (cell % size < size - 1)	// Avoids rightmost cells having neighbor = leftmost cell in row below it
+					neighbor = cell + 1;
 				break;
 			case SOUTH:
 				neighbor = cell + size;
 				break;
 			case WEST:
-				neighbor = cell - 1;
+				if (cell % size > 0)	// Avoids leftmost cells having neighbor = rightmost cell in row above it
+					neighbor = cell - 1;
 				break;
 		}
-		if (neighbor < 0 || neighbor > getLength() - 1)
+		if ((neighbor < 0) || (neighbor > getLength() - 1))
 			neighbor = OUT_OF_BOUNDS;
 		return neighbor;
 	}
@@ -105,11 +107,11 @@ public class Maze {
 	public Wall getDirection(int cell, int neighbor) {
 		if (neighbor == (cell - size))
 			return Wall.NORTH;
-		else if (neighbor == (cell + 1))
+		else if ((neighbor == cell + 1) && (cell % size < size - 1))
 			return Wall.EAST;
 		else if (neighbor == (cell + size))
 			return Wall.SOUTH;
-		else if (neighbor == (cell - 1))
+		else if ((neighbor == cell - 1) && (cell % size > 0))
 			return Wall.WEST;
 		
 		return null;	// Specified neighbor is not a neighbor
@@ -120,6 +122,8 @@ public class Maze {
 		for (Wall direction : Wall.values()) {
 			int currentNeighborIndex = getNeighbor(cell, direction);
 			if (currentNeighborIndex != OUT_OF_BOUNDS && rooms[currentNeighborIndex].isIsolated())	// If neighbor exists and is isolated
+				lonelyNeighbors.add(currentNeighborIndex);
+			else if (currentNeighborIndex == getLength() - 1 && rooms[currentNeighborIndex].isIsolated(Wall.SOUTH))	// End cell is 'isolated' if all walls besides exit wall intact
 				lonelyNeighbors.add(currentNeighborIndex);
 		}
 		return lonelyNeighbors.toArray(new Integer[lonelyNeighbors.size()]);
@@ -150,5 +154,51 @@ public class Maze {
 	 */
 	public int getLength() {
 		return size * size;
+	}
+	
+	public String buildString() {
+		String display = "";
+		for (int j = 0; j < size; j++) {
+			if (j == 0) {	// Each row's SOUTH walls are next row's NORTH walls, only print NORTH walls for top row
+				for (int i = 0; i < size; i++) {	// Top part of cells
+					Cell currentCell = getCell(getLinearPosition(i, j));
+					if (i == 0)
+						display += "+";
+					if (currentCell.hasWall(Wall.NORTH))
+						display += "-";
+					else
+						display += " ";
+					display += "+";
+				}
+				display += "\n";
+			}
+			for (int i = 0; i < size; i++) {	// Mid part of cells
+				Cell currentCell = getCell(getLinearPosition(i, j));
+				if (i == 0) {	// Each column's EAST walls are next column's WEST walls, only print WEST walls for leftmost column
+					if (currentCell.hasWall(Wall.WEST))
+						display += "|";
+					else
+						display += " ";
+				}
+				display += " ";
+				if (currentCell.hasWall(Wall.EAST))
+					display += "|";
+				else
+					display += " ";
+			}
+			display += "\n";
+			for (int i = 0; i < size; i++) {	// Bottom part of cells
+				Cell currentCell = getCell(getLinearPosition(i, j));
+				if (i == 0)
+					display += "+";
+				if (currentCell.hasWall(Wall.SOUTH))
+					display += "-";
+				else
+					display += " ";
+				display += "+";
+			}
+			display += "\n";
+		}
+		return display;
 	}
 }

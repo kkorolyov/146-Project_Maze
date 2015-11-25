@@ -68,6 +68,12 @@ public class MazeTest {
 		assertEquals(eastNeighbor, testMaze.getNeighbor(start, Wall.EAST));
 		assertEquals(southNeighbor, testMaze.getNeighbor(start, Wall.SOUTH));
 	}
+	@Test
+	public void testGetNeighborNull() {
+		int upperRight = testMaze.getLinearPosition(testSize - 1, 0), lowerLeft = upperRight + 1;
+		assertEquals(Maze.OUT_OF_BOUNDS, testMaze.getNeighbor(upperRight, Wall.EAST));
+		assertEquals(Maze.OUT_OF_BOUNDS, testMaze.getNeighbor(lowerLeft, Wall.WEST));
+	}
 	
 	@Test
 	public void testGetLinearPosition() {
@@ -79,5 +85,10 @@ public class MazeTest {
 	@Test
 	public void testGetLength() {
 		assertEquals(testSize * testSize, testMaze.getLength());
+	}
+	
+	@Test public void testBuildString() {
+		testMaze.generateRandomPath();
+		System.out.println(testMaze.buildString());
 	}
 }
