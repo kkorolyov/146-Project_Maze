@@ -46,6 +46,37 @@ public class MazeTest {
 	}
 	
 	@Test
+	public void breakWall() {
+		Wall toBreak = Wall.SOUTH;
+		int cell1 = testMaze.getLinearPosition(0, 0), cell2 = testMaze.getLinearPosition(0, 1);
+		
+		assertTrue(testMaze.getCell(cell1).hasWall(toBreak));	// Has south wall
+		assertTrue(testMaze.getCell(cell2).hasWall(testMaze.getCell(cell2).getOppositeWall(toBreak)));	// Has north wall
+		testMaze.breakWall(cell1, toBreak);	// Break wall south of cell1
+		assertTrue(!testMaze.getCell(cell1).hasWall(toBreak));	// No more south wall
+		assertTrue(!testMaze.getCell(cell2).hasWall(testMaze.getCell(cell2).getOppositeWall(toBreak)));	// Also breaks neighbor's side of wall
+	}
+	
+	@Test
+	public void testGetNeighbor() {
+		int start = 0;
+		int northNeighbor = Maze.OUT_OF_BOUNDS, westNeighbor = Maze.OUT_OF_BOUNDS;	// No north or west neighbors
+		int eastNeighbor = testMaze.getLinearPosition(1, 0), southNeighbor = testMaze.getLinearPosition(0, 1);
+		
+		assertEquals(northNeighbor, testMaze.getNeighbor(start, Wall.NORTH));
+		assertEquals(westNeighbor, testMaze.getNeighbor(start, Wall.WEST));
+		assertEquals(eastNeighbor, testMaze.getNeighbor(start, Wall.EAST));
+		assertEquals(southNeighbor, testMaze.getNeighbor(start, Wall.SOUTH));
+	}
+	
+	@Test
+	public void testGetLinearPosition() {
+		int start = 0, end = testMaze.getLength() - 1;
+		assertEquals(start, testMaze.getLinearPosition(0, 0));
+		assertEquals(end, testMaze.getLinearPosition(testSize - 1, testSize - 1));
+	}
+	
+	@Test
 	public void testGetLength() {
 		assertEquals(testSize * testSize, testMaze.getLength());
 	}

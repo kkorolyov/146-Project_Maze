@@ -95,11 +95,11 @@ public class Cell {
 	}
 	
 	/**
-	 * @param removeWall source wall
+	 * @param wall source wall
 	 * @return wall opposite source wall
 	 */
-	public Wall getOppositeWall(Wall removeWall) {
-		switch (removeWall) {
+	public Wall getOppositeWall(Wall wall) {
+		switch (wall) {
 			case NORTH:
 				return Wall.SOUTH;
 			case EAST:

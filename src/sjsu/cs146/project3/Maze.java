@@ -5,6 +5,8 @@ import java.util.*;
 import sjsu.cs146.project3.Cell.Wall;
 
 public class Maze {
+	public static final int OUT_OF_BOUNDS = -1;	// Marker for out of bounds cell
+	
 	private int size;
 	private Cell[] rooms;	// All Cell objects
 	private List<Integer>[] openNeighbors;	// All adjacent cell indices for each source cell index
@@ -14,6 +16,8 @@ public class Maze {
 		size = s;
 		rooms = new Cell[getLength()];
 		openNeighbors = new LinkedList[getLength()];
+		for (int i = 0; i < openNeighbors.length; i++)	// Initialize adjacency lists
+			openNeighbors[i] = new LinkedList<>();
 		for (int i = 0; i < rooms.length; i++)	// Populate with completely enclosed cells
 			rooms[i] = new Cell();
 		
@@ -71,10 +75,10 @@ public class Maze {
 	/**
 	 * @param cell source cell index
 	 * @param direction direction to check
-	 * @return index of neighboring cell in the specified direction
+	 * @return index of neighboring cell in the specified direction, or -1 if out of bounds
 	 */
 	public int getNeighbor(int cell, Wall direction) {
-		int neighbor = -1;
+		int neighbor = OUT_OF_BOUNDS;	// Default to out of bounds
 		switch (direction) {
 			case NORTH:
 				neighbor = cell - size;
@@ -90,7 +94,7 @@ public class Maze {
 				break;
 		}
 		if (neighbor < 0 || neighbor > getLength() - 1)
-			throw new IndexOutOfBoundsException(String.valueOf(neighbor));
+			neighbor = OUT_OF_BOUNDS;
 		return neighbor;
 	}
 	/**
@@ -115,7 +119,7 @@ public class Maze {
 		List<Integer> lonelyNeighbors = new ArrayList<>(4);	// Max 4 neighbors
 		for (Wall direction : Wall.values()) {
 			int currentNeighborIndex = getNeighbor(cell, direction);
-			if (rooms[currentNeighborIndex].isIsolated())
+			if (currentNeighborIndex != OUT_OF_BOUNDS && rooms[currentNeighborIndex].isIsolated())	// If neighbor exists and is isolated
 				lonelyNeighbors.add(currentNeighborIndex);
 		}
 		return lonelyNeighbors.toArray(new Integer[lonelyNeighbors.size()]);
@@ -127,6 +131,18 @@ public class Maze {
 	 */
 	public Cell getCell(int i) {
 		return rooms[i];
+	}
+	
+	/**
+	 * Converts a cell's 2D coordinates to its index in the maze.
+	 * @param i x-coordinate
+	 * @param j y-coordinate
+	 * @return index of cell at the specified coordinates
+	 */
+	public int getLinearPosition(int i, int j) {
+		if ((i < 0) || (i > size - 1) || (j < 0) || (j > size - 1))	// Check bounds
+			throw new IndexOutOfBoundsException("(" + String.valueOf(i) + ", " + String.valueOf(j) + ")");
+		return (i + (size * j));
 	}
 	
 	/**
