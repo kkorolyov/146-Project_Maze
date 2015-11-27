@@ -1,6 +1,7 @@
 package sjsu.cs146.project3;
 
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import sjsu.cs146.project3.Cell.Wall;
 
@@ -23,6 +24,32 @@ public class Maze {
 		
 		rooms[0].removeWall(Wall.NORTH);	// Start cell
 		rooms[rooms.length - 1].removeWall(Wall.SOUTH);	// End cell
+	}
+	
+	public Map<Integer, Integer> BFS() {
+		Map<Integer, Integer> discoveryTimes = new HashMap<>();	// Will return
+		Map<Integer, Color> colors = new HashMap<>();	// Track colors of vertices by index
+		for (int i = 0; i < openNeighbors.length; i++)
+			colors.put(i, Color.WHITE);	// Initialize all vertices white
+		Queue<Integer> q = new LinkedBlockingQueue<>();
+		colors.put(0, Color.GREY);	// Discovered source vertex
+		discoveryTimes.put(0, 0);	// Source vertex discovery time = 0
+		q.add(0);	// Enqueue source vertex
+		
+		while (!q.isEmpty()) {
+			int currentSource = q.remove();
+			for (int neighbor : openNeighbors[currentSource]) {	// All adjacent cells
+				if (colors.get(neighbor) == Color.WHITE) {	// Unexplored vertex
+					colors.remove(neighbor);
+					colors.put(neighbor, Color.GREY);	// Neighbor discovered
+					discoveryTimes.put(neighbor, discoveryTimes.get(currentSource) + 1);	// Neighbor discovery time
+					q.add(neighbor);	// Enqueue neighbor
+				}
+				colors.remove(currentSource);
+				colors.put(currentSource, Color.BLACK);	// Source fully explored
+			}
+		}
+		return discoveryTimes;
 	}
 	
 	/**
@@ -157,6 +184,12 @@ public class Maze {
 	}
 	
 	public String buildString() {
+		return buildString(null);
+	}
+	public String buildString(Map<Integer, Integer> values) {	// TODO Optimize
+		int cellWidth = 1;	// Default cell width
+		if (values != null)	// Expand cell width to accommodate values
+			cellWidth = String.valueOf(getLength() - 1).length();	// Number of chars in greatest value
 		String display = "";
 		for (int j = 0; j < size; j++) {
 			if (j == 0) {	// Each row's SOUTH walls are next row's NORTH walls, only print NORTH walls for top row
@@ -165,9 +198,9 @@ public class Maze {
 					if (i == 0)
 						display += "+";
 					if (currentCell.hasWall(Wall.NORTH))
-						display += "-";
+						display += expand('-', cellWidth);
 					else
-						display += " ";
+						display += expand(' ', cellWidth);
 					display += "+";
 				}
 				display += "\n";
@@ -180,7 +213,10 @@ public class Maze {
 					else
 						display += " ";
 				}
-				display += " ";
+				if (values == null)	// Only print maze walls
+					display += expand(' ', cellWidth);
+				else
+					display += expand(values.get(getLinearPosition(i, j)), cellWidth);	// Print value for the current cell
 				if (currentCell.hasWall(Wall.EAST))
 					display += "|";
 				else
@@ -192,13 +228,38 @@ public class Maze {
 				if (i == 0)
 					display += "+";
 				if (currentCell.hasWall(Wall.SOUTH))
-					display += "-";
+					display += expand('-', cellWidth);
 				else
-					display += " ";
+					display += expand(' ', cellWidth);
 				display += "+";
 			}
 			display += "\n";
 		}
 		return display;
+	}
+	
+	private String expand(char source, int length) {	// Expands a single character
+		String expanded = "";
+		for (int i = 0; i < length; i++)
+			expanded += source;
+		return expanded;
+	}
+	private String expand(int source, int length) {	// Adds filler on either side of a number
+		String expanded = String.valueOf(source);
+		boolean addToEnd = true;
+		if (expanded.length() < length) {
+			for (int i = expanded.length(); i < length; i++) {
+				if (addToEnd)	// Add filler to end
+					expanded += " ";	// Fill with spaces
+				else	// Add filler to beginning
+					expanded = " " + expanded;
+				addToEnd = !addToEnd;	// Alternate adding to end and start
+			}
+		}
+		return expanded;
+	}
+	
+	public enum Color {
+		WHITE, GREY, BLACK;
 	}
 }

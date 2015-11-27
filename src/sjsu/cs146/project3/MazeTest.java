@@ -8,7 +8,8 @@ import org.junit.Test;
 import sjsu.cs146.project3.Cell.Wall;
 
 public class MazeTest {
-	private int testSize = 4;
+	private int testSize = 16;
+	private long testSeed = 0;
 	private Maze testMaze;
 	
 	@Before
@@ -87,8 +88,40 @@ public class MazeTest {
 		assertEquals(testSize * testSize, testMaze.getLength());
 	}
 	
-	@Test public void testBuildString() {
+	@Test
+	public void testBuildString() {
+		testMaze = new Maze(4);	// Manually-set expected String for 4x4 maze
+		String expectedMaze = "+ +-+-+-+\n"
+												+ "| | | | |\n"
+												+ "+-+-+-+-+\n"
+												+ "| | | | |\n"
+												+ "+-+-+-+-+\n"
+												+ "| | | | |\n"
+												+ "+-+-+-+-+\n"
+												+ "| | | | |\n"
+												+ "+-+-+-+ +\n";
+		assertEquals(expectedMaze, testMaze.buildString());
+	}
+	
+	@Test
+	public void testGeneratePreset() {
+		testMaze.generateRandomPath(testSeed);
+		System.out.println("Seed = " + String.valueOf(testSeed) + "\n" + testMaze.buildString());
+	}
+	@Test
+	public void testGenerateRandom() {
 		testMaze.generateRandomPath();
-		System.out.println(testMaze.buildString());
+		System.out.println("Random seed\n" + testMaze.buildString());
+	}
+	
+	@Test
+	public void testBFSPreset() {
+		testMaze.generateRandomPath(testSeed);
+		System.out.println("Seed = " + String.valueOf(testSeed) + "\nBFS\n" + testMaze.buildString(testMaze.BFS()));
+	}
+	@Test
+	public void testBFSRandom() {
+		testMaze.generateRandomPath();
+		System.out.println("Random seed\nBFS\n" + testMaze.buildString(testMaze.BFS()));
 	}
 }
