@@ -1,17 +1,28 @@
 package sjsu.cs146.project3;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import sjsu.cs146.project3.Cell.Wall;
 
+/**
+ * Provides methods for testing {@link Maze} functionality.
+ */
 public class MazeTest {
-	private int testSize = 4;
-	private long testSeed = 0;
+	private static int testSize = 4;
+	private static long testSeed = 0;
+	private static Maze savedRandomMaze;
 	private Maze testMaze;
 	
+	@BeforeClass
+	public static void setUpBeforeClass() {	// Use same maze across multiple tests
+		savedRandomMaze = new Maze(testSize);
+		savedRandomMaze.generateRandomPath();
+	}
 	@Before
 	public void setUp() {
 		testMaze = new Maze(testSize);
@@ -115,13 +126,29 @@ public class MazeTest {
 	}
 	
 	@Test
-	public void testBFSPreset() {
+	public void testBFSPresetDisplay() {
 		testMaze.generateRandomPath(testSeed);
-		System.out.println("Seed = " + String.valueOf(testSeed) + "\nBFS\n" + testMaze.buildString(testMaze.BFS()));
+		System.out.println(	"Seed = " + String.valueOf(testSeed)
+											+ "\nBFS\n"
+											+ testMaze.buildString(testMaze.traverseBFS(), false));
 	}
 	@Test
-	public void testBFSRandom() {
-		testMaze.generateRandomPath();
-		System.out.println("Random seed\nBFS\n" + testMaze.buildString(testMaze.BFS()));
+	public void testBFSPresetDisplayChopped() {
+		testMaze.generateRandomPath(testSeed);
+		System.out.println(	"Seed = " + String.valueOf(testSeed)
+											+ "\nBFS (chopped values)\n"
+											+ testMaze.buildString(testMaze.traverseBFS(), true));
+	}
+	@Test
+	public void testBFSRandomDisplay() {
+		System.out.println(	"Random seed"
+											+ "\nBFS\n"
+											+ savedRandomMaze.buildString(savedRandomMaze.traverseBFS(), false));
+	}
+	@Test
+	public void testBFSRandomDisplayChopped() {
+		System.out.println(	"Random seed"
+											+ "\nBFS (chopped values)\n"
+											+ savedRandomMaze.buildString(savedRandomMaze.traverseBFS(), true));
 	}
 }

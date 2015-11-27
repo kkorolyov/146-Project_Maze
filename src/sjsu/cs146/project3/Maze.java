@@ -5,13 +5,22 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import sjsu.cs146.project3.Cell.Wall;
 
-public class Maze {
+/**
+ * A randomly-generated perfect maze.
+ * Supplies methods for solving itself.
+ */
+public class Maze {	// TODO DFS, # markers for shortest path (Tweak buildString() to accept String, not ints for reusability)
 	public static final int OUT_OF_BOUNDS = -1;	// Marker for out of bounds cell
 	
-	private int size;
-	private Cell[] rooms;	// All Cell objects
+	private int size;	// Size of each edge of maze
+	private boolean generated;	// If maze has been generated
+	private Cell[] rooms;	// All cells in maze
 	private List<Integer>[] openNeighbors;	// All adjacent cell indices for each source cell index
 	
+	/**
+	 * Constructs a new, square, s x s sized maze.
+	 * @param s length of each side of maze
+	 */
 	@SuppressWarnings("unchecked")
 	public Maze(int s) {
 		size = s;
@@ -26,7 +35,13 @@ public class Maze {
 		rooms[rooms.length - 1].removeWall(Wall.SOUTH);	// End cell
 	}
 	
-	public Map<Integer, Integer> BFS() {
+	/**
+	 * Traverses the maze until the exit cell is encountered.
+	 * @return map of cell indices and their discovery times, or {@code null} if no maze to traverse
+	 */
+	public Map<Integer, Integer> traverseBFS() {
+		if (!generated)	// Can't traverse a non-existent maze
+			return null;
 		Map<Integer, Integer> discoveryTimes = new HashMap<>();	// Will return
 		Map<Integer, Color> colors = new HashMap<>();	// Track colors of vertices by index
 		for (int i = 0; i < openNeighbors.length; i++)
@@ -43,7 +58,11 @@ public class Maze {
 					colors.remove(neighbor);
 					colors.put(neighbor, Color.GREY);	// Neighbor discovered
 					discoveryTimes.put(neighbor, discoveryTimes.get(currentSource) + 1);	// Neighbor discovery time
-					q.add(neighbor);	// Enqueue neighbor
+					
+					if (neighbor == getLength() - 1)	// Located end cell
+						q.clear();	// Force early BFS loop termination
+					else
+						q.add(neighbor);	// Enqueue neighbor
 				}
 				colors.remove(currentSource);
 				colors.put(currentSource, Color.BLACK);	// Source fully explored
@@ -82,6 +101,7 @@ public class Maze {
 			}
 			else
 				currentCell = cellStack.pop();
+			generated = true;
 		}
 	}
 	
@@ -102,7 +122,7 @@ public class Maze {
 	/**
 	 * @param cell source cell index
 	 * @param direction direction to check
-	 * @return index of neighboring cell in the specified direction, or -1 if out of bounds
+	 * @return index of neighboring cell in the specified direction, or {@value #OUT_OF_BOUNDS} if out of bounds
 	 */
 	public int getNeighbor(int cell, Wall direction) {
 		int neighbor = OUT_OF_BOUNDS;	// Default to out of bounds
@@ -129,7 +149,7 @@ public class Maze {
 	/**
 	 * @param cell source cell index
 	 * @param neighbor neighbor cell index
-	 * @return direction to move from source cell to neighbor
+	 * @return direction of neighbor with respect to source, or {@code null} if not adjacent
 	 */
 	public Wall getDirection(int cell, int neighbor) {
 		if (neighbor == (cell - size))
@@ -144,6 +164,10 @@ public class Maze {
 		return null;	// Specified neighbor is not a neighbor
 	}
 	
+	/**
+	 * @param cell source cell
+	 * @return all isolated, adjacent neighbors
+	 */
 	public Integer[] getLonelyNeighbors(int cell) {
 		List<Integer> lonelyNeighbors = new ArrayList<>(4);	// Max 4 neighbors
 		for (Wall direction : Wall.values()) {
@@ -183,54 +207,67 @@ public class Maze {
 		return size * size;
 	}
 	
+	/**
+	 * @return String representation of maze
+	 */
 	public String buildString() {
-		return buildString(null);
+		return buildString(null, false);
 	}
-	public String buildString(Map<Integer, Integer> values) {	// TODO Optimize
+	/**
+	 * @param cellValues cell indices and respective values
+	 * @param uglyStyle only print lowest digit of each cell value
+	 * @return String representation of maze, with appropriate cell value printed in center of each cell
+	 */
+	public String buildString(Map<Integer, Integer> cellValues, boolean uglyStyle) {
 		int cellWidth = 1;	// Default cell width
-		if (values != null)	// Expand cell width to accommodate values
-			cellWidth = String.valueOf(Misc.max(values)).length();	// Number of chars in greatest value
+		if (cellValues != null && !uglyStyle)	// Expand cell width to accommodate values
+			cellWidth = String.valueOf(Misc.max(cellValues)).length();	// Number of chars in greatest value
 		String display = "";
-		for (int j = 0; j < size; j++) {
-			if (j == 0) {	// Each row's SOUTH walls are next row's NORTH walls, only print NORTH walls for top row
-				for (int i = 0; i < size; i++) {	// Top part of cells
-					Cell currentCell = getCell(getLinearPosition(i, j));
-					if (i == 0)
-						display += "+";
-					if (currentCell.hasWall(Wall.NORTH))
-						display += Misc.expand('-', cellWidth);
-					else
-						display += Misc.expand(' ', cellWidth);
-					display += "+";
-				}
-				display += "\n";
-			}
-			for (int i = 0; i < size; i++) {	// Mid part of cells
+		
+		for (int i = 0; i < size; i++) {	// Top edge of maze left->right
+			Cell currentCell = getCell(getLinearPosition(i, 0));	// Each row's SOUTH walls are next row's NORTH walls, only print NORTH walls for top row
+			if (i == 0)	// Print left corner only for leftmost column
+				display += "+";
+			if (currentCell.hasWall(Wall.NORTH))
+				display += Misc.repeat('-', cellWidth);	// NORTH wall
+			else
+				display += Misc.repeat(' ', cellWidth);	// No NORTH wall
+			display += "+";	// Right corner
+		}
+		display += "\n";	// Top edge of maze done
+		
+		for (int j = 0; j < size; j++) {	// Iterate top->down by row
+			for (int i = 0; i < size; i++) {	// Mid part of current row cells
 				Cell currentCell = getCell(getLinearPosition(i, j));
 				if (i == 0) {	// Each column's EAST walls are next column's WEST walls, only print WEST walls for leftmost column
 					if (currentCell.hasWall(Wall.WEST))
-						display += "|";
+						display += "|";	// WEST wall
 					else
-						display += " ";
+						display += " ";	// No WEST wall
 				}
-				if (values == null)	// Only print maze walls
-					display += Misc.expand(' ', cellWidth);
-				else
-					display += Misc.expand(values.get(getLinearPosition(i, j)), cellWidth);	// Print value for the current cell
+				if (cellValues != null && cellValues.get(getLinearPosition(i, j)) != null) {	// Value exists for current cell
+					if (uglyStyle)
+						display += Misc.chop(String.valueOf(cellValues.get(getLinearPosition(i, j))));	// Print last digit of value
+					else
+						display += Misc.center(String.valueOf(cellValues.get(getLinearPosition(i, j))), cellWidth);	// Center value
+				}
+				else	// No value to print
+					display += Misc.repeat(' ', cellWidth);
+				
 				if (currentCell.hasWall(Wall.EAST))
-					display += "|";
+					display += "|";	// EAST wall
 				else
-					display += " ";
+					display += " ";	// No EAST wall
 			}
-			display += "\n";
-			for (int i = 0; i < size; i++) {	// Bottom part of cells
+			display += "\n";	// Mid part of current row done
+			for (int i = 0; i < size; i++) {	// Bottom part of current row cells
 				Cell currentCell = getCell(getLinearPosition(i, j));
 				if (i == 0)
 					display += "+";
 				if (currentCell.hasWall(Wall.SOUTH))
-					display += Misc.expand('-', cellWidth);
+					display += Misc.repeat('-', cellWidth);
 				else
-					display += Misc.expand(' ', cellWidth);
+					display += Misc.repeat(' ', cellWidth);
 				display += "+";
 			}
 			display += "\n";
