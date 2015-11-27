@@ -189,7 +189,7 @@ public class Maze {
 	public String buildString(Map<Integer, Integer> values) {	// TODO Optimize
 		int cellWidth = 1;	// Default cell width
 		if (values != null)	// Expand cell width to accommodate values
-			cellWidth = String.valueOf(getLength() - 1).length();	// Number of chars in greatest value
+			cellWidth = String.valueOf(max(values)).length();	// Number of chars in greatest value
 		String display = "";
 		for (int j = 0; j < size; j++) {
 			if (j == 0) {	// Each row's SOUTH walls are next row's NORTH walls, only print NORTH walls for top row
@@ -257,6 +257,16 @@ public class Maze {
 			}
 		}
 		return expanded;
+	}
+	
+	private int max(Map<Integer, Integer> values) {	// Calculates max value in map
+		int max = 0;
+		for (int key : values.keySet()) {
+			int currentValue;
+			if ((currentValue = values.get(key)) > max)
+				max = currentValue;
+		}
+		return max;
 	}
 	
 	public enum Color {
