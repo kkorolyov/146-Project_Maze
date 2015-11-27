@@ -8,7 +8,7 @@ import org.junit.Test;
 import sjsu.cs146.project3.Cell.Wall;
 
 public class MazeTest {
-	private int testSize = 32;
+	private int testSize = 4;
 	private long testSeed = 0;
 	private Maze testMaze;
 	

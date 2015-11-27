@@ -189,7 +189,7 @@ public class Maze {
 	public String buildString(Map<Integer, Integer> values) {	// TODO Optimize
 		int cellWidth = 1;	// Default cell width
 		if (values != null)	// Expand cell width to accommodate values
-			cellWidth = String.valueOf(max(values)).length();	// Number of chars in greatest value
+			cellWidth = String.valueOf(Misc.max(values)).length();	// Number of chars in greatest value
 		String display = "";
 		for (int j = 0; j < size; j++) {
 			if (j == 0) {	// Each row's SOUTH walls are next row's NORTH walls, only print NORTH walls for top row
@@ -198,9 +198,9 @@ public class Maze {
 					if (i == 0)
 						display += "+";
 					if (currentCell.hasWall(Wall.NORTH))
-						display += expand('-', cellWidth);
+						display += Misc.expand('-', cellWidth);
 					else
-						display += expand(' ', cellWidth);
+						display += Misc.expand(' ', cellWidth);
 					display += "+";
 				}
 				display += "\n";
@@ -214,9 +214,9 @@ public class Maze {
 						display += " ";
 				}
 				if (values == null)	// Only print maze walls
-					display += expand(' ', cellWidth);
+					display += Misc.expand(' ', cellWidth);
 				else
-					display += expand(values.get(getLinearPosition(i, j)), cellWidth);	// Print value for the current cell
+					display += Misc.expand(values.get(getLinearPosition(i, j)), cellWidth);	// Print value for the current cell
 				if (currentCell.hasWall(Wall.EAST))
 					display += "|";
 				else
@@ -228,45 +228,14 @@ public class Maze {
 				if (i == 0)
 					display += "+";
 				if (currentCell.hasWall(Wall.SOUTH))
-					display += expand('-', cellWidth);
+					display += Misc.expand('-', cellWidth);
 				else
-					display += expand(' ', cellWidth);
+					display += Misc.expand(' ', cellWidth);
 				display += "+";
 			}
 			display += "\n";
 		}
 		return display;
-	}
-	
-	private String expand(char source, int length) {	// Expands a single character
-		String expanded = "";
-		for (int i = 0; i < length; i++)
-			expanded += source;
-		return expanded;
-	}
-	private String expand(int source, int length) {	// Adds filler on either side of a number
-		String expanded = String.valueOf(source);
-		boolean addToEnd = true;
-		if (expanded.length() < length) {
-			for (int i = expanded.length(); i < length; i++) {
-				if (addToEnd)	// Add filler to end
-					expanded += " ";	// Fill with spaces
-				else	// Add filler to beginning
-					expanded = " " + expanded;
-				addToEnd = !addToEnd;	// Alternate adding to end and start
-			}
-		}
-		return expanded;
-	}
-	
-	private int max(Map<Integer, Integer> values) {	// Calculates max value in map
-		int max = 0;
-		for (int key : values.keySet()) {
-			int currentValue;
-			if ((currentValue = values.get(key)) > max)
-				max = currentValue;
-		}
-		return max;
 	}
 	
 	public enum Color {
