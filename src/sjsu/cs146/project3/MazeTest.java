@@ -151,4 +151,31 @@ public class MazeTest {
 											+ "\nBFS (chopped values)\n"
 											+ savedRandomMaze.buildString(savedRandomMaze.traverseBFS(), true));
 	}
+	
+	@Test
+	public void testDFSPresetDisplay() {
+		testMaze.generateRandomPath(testSeed);
+		System.out.println(	"Seed = " + String.valueOf(testSeed)
+											+ "\nDFS\n"
+											+ testMaze.buildString(testMaze.DFS(), false));
+	}
+	@Test
+	public void testDFSPresetDisplayChopped() {
+		testMaze.generateRandomPath(testSeed);
+		System.out.println(	"Seed = " + String.valueOf(testSeed)
+											+ "\nDFS (chopped values)\n"
+											+ testMaze.buildString(testMaze.DFS(), true));
+	}
+	@Test
+	public void testDFSRandomDisplay() {
+		System.out.println(	"Random seed"
+											+ "\nDFS\n"
+											+ savedRandomMaze.buildString(savedRandomMaze.DFS(), false));
+	}
+	@Test
+	public void testDFSRandomDisplayChopped() {
+		System.out.println(	"Random seed"
+											+ "\nDFS (chopped values)\n"
+											+ savedRandomMaze.buildString(savedRandomMaze.DFS(), true));
+	}
 }

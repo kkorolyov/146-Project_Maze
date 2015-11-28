@@ -55,7 +55,6 @@ public class Maze {	// TODO DFS, # markers for shortest path (Tweak buildString(
 			int currentSource = q.remove();
 			for (int neighbor : openNeighbors[currentSource]) {	// All adjacent cells
 				if (colors.get(neighbor) == Color.WHITE) {	// Unexplored vertex
-					colors.remove(neighbor);
 					colors.put(neighbor, Color.GREY);	// Neighbor discovered
 					discoveryTimes.put(neighbor, discoveryTimes.get(currentSource) + 1);	// Neighbor discovery time
 					
@@ -64,12 +63,85 @@ public class Maze {	// TODO DFS, # markers for shortest path (Tweak buildString(
 					else
 						q.add(neighbor);	// Enqueue neighbor
 				}
-				colors.remove(currentSource);
 				colors.put(currentSource, Color.BLACK);	// Source fully explored
 			}
 		}
 		return discoveryTimes;
 	}
+	
+	public Map<Integer, Integer> traverseDFS() {
+		if (!generated)	// Can't traverse a non-existent maze
+			return null;
+		Map<Integer, Integer> discoveryTimes = new HashMap<>();
+		Map<Integer, Color> colors = new HashMap<>();
+		for (int i = 0; i < openNeighbors.length; i++)
+			colors.put(i, Color.WHITE);
+		Stack<Integer> s = new Stack<>();
+		int time = 0;
+		s.push(0);
+		
+		while (!s.isEmpty()) {
+			int currentSource = s.pop();
+			time++;
+			colors.put(currentSource, Color.GREY);
+			discoveryTimes.put(currentSource, time);
+			
+			for (int neighbor : openNeighbors[currentSource]) {
+				if (colors.get(neighbor) == Color.WHITE) {
+					time++;
+					colors.put(neighbor, Color.GREY);
+					s.push(neighbor);
+				}
+			}
+			time++;
+			colors.put(currentSource, Color.BLACK);
+			discoveryTimes.put(currentSource, time);
+		}
+		return discoveryTimes;
+	}
+	
+	public Map<Integer, Integer> DFS() {
+	  Map<Integer, Integer> discoveryTimes = new HashMap<>(); // Will return
+	  Map<Integer, Color> colors = new HashMap<>(); // Track colors of vertices by index
+	  for (int i = 0; i < openNeighbors.length; i++)
+	   colors.put(i, Color.WHITE); // Initialize all vertices white
+	  int time = 0;
+	  colors.put(0, Color.GREY); // Discovered source vertex
+	  discoveryTimes.put(0, 0);
+	  for(int i : openNeighbors[0]) {
+	   
+	   if (colors.get(i) == Color.WHITE) {
+	    
+	    DFSVisit(colors, discoveryTimes, i, time);
+	   }
+	  }
+	  
+	  return discoveryTimes;
+	 }
+	 
+	 public void DFSVisit(Map<Integer, Color> colors, Map<Integer, Integer> discoveryTimes, int i, int time) {
+	  time++;
+	  discoveryTimes.put(i, time);
+	  //System.out.println(time);
+	  //System.out.println(discoveryTimes.get(i));
+
+	  colors.put(i, Color.GREY);
+
+	  for(int neighbor : openNeighbors[i]) {
+	   if(i == getLength() -1) {
+	    break;
+	   }
+	   if(colors.get(neighbor) == Color.WHITE) {
+	    
+	    DFSVisit(colors, discoveryTimes, neighbor, time);
+	    
+	   }
+	  }
+	  colors.put(i, Color.BLACK);
+	  discoveryTimes.put(i, time);
+	  time++;
+	  
+	 }
 	
 	/**
 	 * Generates a random path from start cell to end cell.
