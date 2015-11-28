@@ -44,19 +44,21 @@ public class Maze {	// TODO DFS, # markers for shortest path (Tweak buildString(
 			return null;
 		Map<Integer, Integer> discoveryTimes = new HashMap<>();	// Will return
 		Map<Integer, Color> colors = new HashMap<>();	// Track colors of vertices by index
+		int time = 0;
 		for (int i = 0; i < openNeighbors.length; i++)
 			colors.put(i, Color.WHITE);	// Initialize all vertices white
 		Queue<Integer> q = new LinkedBlockingQueue<>();
 		colors.put(0, Color.GREY);	// Discovered source vertex
-		discoveryTimes.put(0, 0);	// Source vertex discovery time = 0
+		discoveryTimes.put(0, time);	// Source vertex discovery time = 0
 		q.add(0);	// Enqueue source vertex
 		
 		while (!q.isEmpty()) {
 			int currentSource = q.remove();
 			for (int neighbor : openNeighbors[currentSource]) {	// All adjacent cells
 				if (colors.get(neighbor) == Color.WHITE) {	// Unexplored vertex
+					time++;
 					colors.put(neighbor, Color.GREY);	// Neighbor discovered
-					discoveryTimes.put(neighbor, discoveryTimes.get(currentSource) + 1);	// Neighbor discovery time
+					discoveryTimes.put(neighbor, time);	// Neighbor discovery time
 					
 					if (neighbor == getLength() - 1)	// Located end cell
 						q.clear();	// Force early BFS loop termination
@@ -69,38 +71,44 @@ public class Maze {	// TODO DFS, # markers for shortest path (Tweak buildString(
 		return discoveryTimes;
 	}
 	
-	public Map<Integer, Integer> traverseDFS() {
+	public Map<Integer, Integer> traverseDFSStack() {
 		if (!generated)	// Can't traverse a non-existent maze
 			return null;
 		Map<Integer, Integer> discoveryTimes = new HashMap<>();
 		Map<Integer, Color> colors = new HashMap<>();
 		for (int i = 0; i < openNeighbors.length; i++)
 			colors.put(i, Color.WHITE);
-		Stack<Integer> s = new Stack<>();
+		int currentCell = 0, visitedCells = 1, totalCells = getLength();
 		int time = 0;
-		s.push(0);
+		colors.put(currentCell, Color.GREY);
+		discoveryTimes.put(currentCell, time);
+		Stack<Integer> s = new Stack<>();		
 		
-		while (!s.isEmpty()) {
-			int currentSource = s.pop();
-			time++;
-			colors.put(currentSource, Color.GREY);
-			discoveryTimes.put(currentSource, time);
-			
-			for (int neighbor : openNeighbors[currentSource]) {
+		while (visitedCells < totalCells) {
+			boolean backTrack = true;
+			for (int neighbor : openNeighbors[currentCell]) {
 				if (colors.get(neighbor) == Color.WHITE) {
 					time++;
+					visitedCells++;
 					colors.put(neighbor, Color.GREY);
-					s.push(neighbor);
+					discoveryTimes.put(neighbor, time);
+					s.push(currentCell);
+					currentCell = neighbor;
+					backTrack = false;
+					if (neighbor == getLength() - 1)	// Located end cell
+						visitedCells = totalCells;	// Force early DFS termination
+					break;
 				}
 			}
-			time++;
-			colors.put(currentSource, Color.BLACK);
-			discoveryTimes.put(currentSource, time);
+			if (backTrack)
+				currentCell = s.pop();
 		}
 		return discoveryTimes;
 	}
 	
-	public Map<Integer, Integer> DFS() {
+	public Map<Integer, Integer> traverseDFSRecursive() {
+		if (!generated)	// Can't traverse a non-existent maze
+			return null;
 	  Map<Integer, Integer> discoveryTimes = new HashMap<>(); // Will return
 	  Map<Integer, Color> colors = new HashMap<>(); // Track colors of vertices by index
 	  for (int i = 0; i < openNeighbors.length; i++)
@@ -122,8 +130,6 @@ public class Maze {	// TODO DFS, # markers for shortest path (Tweak buildString(
 	 public void DFSVisit(Map<Integer, Color> colors, Map<Integer, Integer> discoveryTimes, int i, int time) {
 	  time++;
 	  discoveryTimes.put(i, time);
-	  //System.out.println(time);
-	  //System.out.println(discoveryTimes.get(i));
 
 	  colors.put(i, Color.GREY);
 
@@ -173,8 +179,8 @@ public class Maze {	// TODO DFS, # markers for shortest path (Tweak buildString(
 			}
 			else
 				currentCell = cellStack.pop();
-			generated = true;
 		}
+		generated = true;
 	}
 	
 	/**
