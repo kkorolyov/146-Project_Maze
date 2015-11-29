@@ -165,9 +165,9 @@ public class MazeTest {
 		if (Props.printDFSStack) {
 			printDFSStack();
 		}
-		if (Props.printDFSRecursive) {
+		/*if (Props.printDFSRecursive) {
 			printDFSRecursive();
-		}
+		}*/
 	}
 	
 	private void printMaze() {
@@ -275,7 +275,7 @@ public class MazeTest {
 		System.out.println(maze.buildStringShortestPathDFSStack());
 	}
 	
-	private void printDFSRecursive() {
+	/*private void printDFSRecursive() {
 		if (Props.printPreset) {
 			savedPresetMaze.traverseDFSRecursive();
 			
@@ -320,5 +320,5 @@ public class MazeTest {
 	}
 	private void printDFSRecursiveShortestPath(Maze maze) {
 		System.out.println(maze.buildStringShortestPathDFSRecursive());
-	}
+	}*/
 }

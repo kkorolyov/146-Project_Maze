@@ -24,15 +24,15 @@ public class TestDriver {
 		String cmd = "";
 		
 		while (!cmd.equals(RUN_TEST_CMD) ) {
-			System.out.println(	"Current Props:\n"
-												+ "Enter the appropriate number to activate/deactivate\n"
-												+ "Enter nothing or '0' to run MazeTest with current properties\n"
+			System.out.println(	"Enter the appropriate number to activate/deactivate\n"
+												+ "Enter '0' or nothing to run MazeTest with current properties\n"
+												+ "Current Props:\n"
 												+ SWITCH_PRESET + ". print maze generated from preset seed----" + String.valueOf(Props.printPreset).toUpperCase() + "\n"
 												+ SWITCH_RANDOM + ". print maze generated from random seed----" + String.valueOf(Props.printRandom).toUpperCase() + "\n"
 												+ SWITCH_MAZE + ". print bare maze----" + String.valueOf(Props.printMaze).toUpperCase() + "\n"
 												+ SWITCH_BFS + ". print BFS traversal----" + String.valueOf(Props.printBFS).toUpperCase() + "\n"
 												+ SWITCH_DFS_STACK + ". print DFS-stack traversal----" + String.valueOf(Props.printDFSStack).toUpperCase() + "\n"
-												+ SWITCH_DFS_RECURSIVE + ". print DFS-recursive traversal----" + String.valueOf(Props.printDFSRecursive).toUpperCase() + "\n"
+												//+ SWITCH_DFS_RECURSIVE + ". print DFS-recursive traversal----" + String.valueOf(Props.printDFSRecursive).toUpperCase() + "\n"
 												+ SWITCH_CENTERED + ". print maze traversal with centered discovery values----" + String.valueOf(Props.printValuesCentered).toUpperCase() + "\n"
 												+ SWITCH_CHOPPED + ". print maze traversal with last digit of discovery values----" + String.valueOf(Props.printValuesChopped).toUpperCase() + "\n"
 												+ SWITCH_SHORTEST + ". print shortest path found by traversals----" + String.valueOf(Props.printShortestPath).toUpperCase() + "\n");
