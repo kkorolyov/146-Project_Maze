@@ -8,23 +8,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import sjsu.cs146.project3.Cell.Wall;
+import sjsu.cs146.project3.props.Props;
 
 /**
  * Provides methods for testing {@link Maze} functionality.
  */
-public class MazeTest {
-	private static final boolean PRINT_PRESET = true;	// Run tests which print maze generated from preset seed
-	private static final boolean PRINT_RANDOM = true;	// Run tests which print maze generated from random seed 
-	
-	private static final boolean PRINT_MAZE = true;	// Run tests which print bare maze
-	private static final boolean PRINT_BFS = true;	// Run tests which print BFS traversal
-	private static final boolean PRINT_DFS_STACK = true;	// Run tests which print DFS-stack traversal
-	private static final boolean PRINT_DFS_RECURSIVE = true;	// Run tests which print DFS-recursive traversal
-
-	private static final boolean PRINT_CENTERED = true;	// Run tests which print centered maze traversal values
-	private static final boolean PRINT_CHOPPED = true;	// Run tests which print last digit of maze traversal values
-	private static final boolean PRINT_SHORTEST_PATH = true;
-	
+public class MazeTest {	
 	private static int testSize = 4;
 	private static long testSeed = 0;
 	private static Maze savedPresetMaze, savedRandomMaze;
@@ -132,65 +121,65 @@ public class MazeTest {
 	
 	@Test
 	public void displayMaze() {
-		if (PRINT_MAZE) {
+		if (Props.printMaze) {
 			printMaze();
 		}
-		if (PRINT_BFS) {
+		if (Props.printBFS) {
 			printBFS();
 		}
-		if (PRINT_DFS_STACK) {
+		if (Props.printDFSStack) {
 			printDFSStack();
 		}
-		if (PRINT_DFS_RECURSIVE) {
+		if (Props.printDFSRecursive) {
 			printDFSRecursive();
 		}
 	}
 	
 	private void printMaze() {
-		if (PRINT_PRESET) {
+		if (Props.printPreset) {
 			System.out.println(	"Seed = " + String.valueOf(testSeed) + "\n"
 												+ savedPresetMaze.buildString());
 		}
-		if (PRINT_RANDOM) {
+		if (Props.printRandom) {
 			System.out.println(	"Random seed\n"
 												+ savedRandomMaze.buildString());
 		}
 	}
 	
 	private void printBFS() {
-		if (PRINT_PRESET) {
+		if (Props.printPreset) {
 			savedPresetMaze.traverseBFS();
 			
-			if (PRINT_CENTERED) {
+			if (Props.printValuesCentered) {
 				System.out.println(	"Seed = " + String.valueOf(testSeed)
 													+ "\nBFS");
 				printBFSOrder(savedPresetMaze, false);
 			}
-			if (PRINT_CHOPPED) {
+			if (Props.printValuesChopped) {
 				System.out.println(	"Seed = " + String.valueOf(testSeed)
 													+ "\nBFS (chopped values)");
 				printBFSOrder(savedPresetMaze, true);
 			}
-			if (PRINT_SHORTEST_PATH) {
+			if (Props.printShortestPath) {
 				System.out.println(	"Seed = " + String.valueOf(testSeed)
 													+ "\nBFS shortest path");
 				printBFSShortestPath(savedPresetMaze);
 			}
 		}
-		if (PRINT_RANDOM) {
+		if (Props.printRandom) {
 			savedRandomMaze.traverseBFS();
 			
-			if (PRINT_CENTERED) {
+			if (Props.printValuesCentered) {
 				System.out.println(	"Random seed"
 													+ "\nBFS");
 				printBFSOrder(savedRandomMaze, false);
 			}
-			if (PRINT_CHOPPED) {
+			if (Props.printValuesChopped) {
 				System.out.println(	"Random seed"
 													+ "\nBFS (chopped values)");
 				printBFSOrder(savedRandomMaze, true);
 			}
-			if (PRINT_SHORTEST_PATH) {
+			if (Props.printShortestPath) {
 				System.out.println(	"Random seed"
 													+ "\nBFS shortest path");
 				printBFSShortestPath(savedRandomMaze);
@@ -205,39 +194,39 @@ public class MazeTest {
 	}
 	
 	private void printDFSStack() {
-		if (PRINT_PRESET) {
+		if (Props.printPreset) {
 			savedPresetMaze.traverseDFSStack();
 			
-			if (PRINT_CENTERED) {
+			if (Props.printValuesCentered) {
 				System.out.println(	"Seed = " + String.valueOf(testSeed)
 													+ "\nDFS-Stack");
 				printDFSStackOrder(savedPresetMaze, false);
 			}
-			if (PRINT_CHOPPED) {
+			if (Props.printValuesChopped) {
 				System.out.println(	"Seed = " + String.valueOf(testSeed)
 													+ "\nDFS-Stack (chopped values)");
 				printDFSStackOrder(savedPresetMaze, true);
 			}
-			if (PRINT_SHORTEST_PATH) {
+			if (Props.printShortestPath) {
 				System.out.println(	"Seed = " + String.valueOf(testSeed)
 													+ "\nDFS-Stack shortest path");
 				printDFSStackShortestPath(savedPresetMaze);
 			}
 		}
-		if (PRINT_RANDOM) {
+		if (Props.printRandom) {
 			savedRandomMaze.traverseDFSStack();
 			
-			if (PRINT_CENTERED) {
+			if (Props.printValuesCentered) {
 				System.out.println(	"Random seed"
 													+ "\nDFS-Stack");
 				printDFSStackOrder(savedRandomMaze, false);
 			}
-			if (PRINT_CHOPPED) {
+			if (Props.printValuesChopped) {
 				System.out.println(	"Random seed"
 													+ "\nDFS-Stack (chopped values)");
 				printDFSStackOrder(savedRandomMaze, true);
 			}
-			if (PRINT_SHORTEST_PATH) {
+			if (Props.printShortestPath) {
 				System.out.println(	"Random seed"
 													+ "\nDFS-Stack shortest path");
 				printDFSStackShortestPath(savedRandomMaze);
@@ -252,39 +241,39 @@ public class MazeTest {
 	}
 	
 	private void printDFSRecursive() {
-		if (PRINT_PRESET) {
+		if (Props.printPreset) {
 			savedPresetMaze.traverseDFSRecursive();
 			
-			if (PRINT_CENTERED) {
+			if (Props.printValuesCentered) {
 				System.out.println(	"Seed = " + String.valueOf(testSeed)
 													+ "\nDFS-Recursive");
 				printDFSRecursiveOrder(savedPresetMaze, false);
 			}
-			if (PRINT_CHOPPED) {
+			if (Props.printValuesChopped) {
 				System.out.println(	"Seed = " + String.valueOf(testSeed)
 													+ "\nDFS-Recursive (chopped values)");
 				printDFSRecursiveOrder(savedPresetMaze, true);
 			}
-			if (PRINT_SHORTEST_PATH) {
+			if (Props.printShortestPath) {
 				System.out.println(	"Seed = " + String.valueOf(testSeed)
 													+ "\nDFS-Recursive shortest path");
 				printDFSRecursiveShortestPath(savedPresetMaze);
 			}
 		}
-		if (PRINT_RANDOM) {
+		if (Props.printRandom) {
 			savedRandomMaze.traverseDFSRecursive();
 			
-			if (PRINT_CENTERED) {
+			if (Props.printValuesCentered) {
 				System.out.println(	"Random seed"
 													+ "\nDFS-Recursive");
 				printDFSRecursiveOrder(savedRandomMaze, false);
 			}
-			if (PRINT_CHOPPED) {
+			if (Props.printValuesChopped) {
 				System.out.println(	"Random seed"
 													+ "\nDFS-Recursive (chopped values)");
 				printDFSRecursiveOrder(savedRandomMaze, true);
 			}
-			if (PRINT_SHORTEST_PATH) {
+			if (Props.printShortestPath) {
 				System.out.println(	"Random seed"
 													+ "\nDFS-Recursive shortest path");
 				printDFSRecursiveShortestPath(savedRandomMaze);

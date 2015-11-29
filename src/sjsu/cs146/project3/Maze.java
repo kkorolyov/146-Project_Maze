@@ -67,6 +67,7 @@ public class Maze {
 		colors.put(0, Color.GREY);	// Discovered source vertex
 		distance.put(0, 0);
 		discoveryOrderBFS.put(0, time);	// Source vertex discovery time
+		shortestPathBFS.put(0, SHORTEST_PATH_MARKER);
 		q.add(0);	// Enqueue source vertex
 		
 		while (!q.isEmpty()) {
@@ -77,9 +78,10 @@ public class Maze {
 					colors.put(neighbor, Color.GREY);	// Neighbor discovered
 					distance.put(neighbor, distance.get(currentSource) + 1);
 					discoveryOrderBFS.put(neighbor, time);	// Neighbor discovery time
+					shortestPathBFS.put(neighbor, SHORTEST_PATH_MARKER);
 					
 					if (!listeners.isEmpty()) {
-						updateMazePrintListeners(discoveryOrderBFS);	// New marker placed, update listeners
+						updateMazePrintListeners(shortestPathBFS);	// New marker placed, update listeners
 						try {
 							Thread.sleep(100);
 						} catch (InterruptedException e) {
@@ -97,6 +99,7 @@ public class Maze {
 				colors.put(currentSource, Color.BLACK);	// Source fully explored
 			}
 		}
+		shortestPathBFS.clear();
 		int currentBacktrack = getLength() - 1;	// Start backtracking from end cell
 		shortestPathBFS.put(currentBacktrack, SHORTEST_PATH_MARKER);
 		
@@ -496,7 +499,6 @@ public class Maze {
 	
 	public void addMazePrintListener(MazePrintListener listener) {
 		listeners.add(listener);
-		System.out.println("Added listener");
 	}
 	private void updateMazePrintListeners(Map<Integer, Integer> cellValues) {
 		for (MazePrintListener listener : listeners)

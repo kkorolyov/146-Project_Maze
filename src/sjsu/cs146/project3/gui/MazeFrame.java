@@ -56,6 +56,8 @@ public class MazeFrame extends JFrame implements MazePrintListener {
 				public void actionPerformed(ActionEvent e) {
 					maze = new Maze(currentSize);
 					maze.addMazePrintListener(MazeFrame.this);
+					String size = String.valueOf(currentSize);
+					mazeDisplay.setText("Created " + size + "x" + size + " maze");
 				}
 			});
 			sizeButtonPanel.add(sizeButtons[i]);
