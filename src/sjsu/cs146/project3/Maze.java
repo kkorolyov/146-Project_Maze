@@ -4,13 +4,15 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import sjsu.cs146.project3.Cell.Wall;
+import sjsu.cs146.project3.gui.MazePrintListener;
 
 /**
  * A randomly-generated perfect maze.
  * Supplies methods for solving itself.
  */
-public class Maze {	// TODO DFS shortest path
+public class Maze {
 	public static final int OUT_OF_BOUNDS = -1;	// Marker for out of bounds cell
+	public static final int DISPLAY_WIDTH = 5;	// Width of cells in GUI display
 	public static final int SHORTEST_PATH_MARKER = -3;	// Marker for cell in shortest path
 	public static final String SHORTEST_PATH_CHAR = "#";
 	
@@ -21,6 +23,8 @@ public class Maze {	// TODO DFS shortest path
 	private Map<Integer, Integer> discoveryOrderBFS = new HashMap<>(), discoveryOrderDFSStack = new HashMap<>(), discoveryOrderDFSRecursive = new HashMap<>();	// Discovery time of each cell
 	private Map<Integer, Integer> shortestPathBFS = new HashMap<>(), shortestPathDFSStack = new HashMap<>(), shortestPathDFSRecursive = new HashMap<>();	// Cells along shortest path have marker
 	
+	private List<MazePrintListener> listeners = new ArrayList<>();	// For realtime maze traversal printing
+	
 	/**
 	 * Constructs a new, square, s x s sized maze.
 	 * @param s length of each side of maze
@@ -30,6 +34,12 @@ public class Maze {	// TODO DFS shortest path
 		size = s;
 		rooms = new Cell[getLength()];
 		openNeighbors = new LinkedList[getLength()];
+		reset();
+	}
+	
+	private void reset() {	// For reusability
+		generated = false;
+		
 		for (int i = 0; i < openNeighbors.length; i++)	// Initialize adjacency lists
 			openNeighbors[i] = new LinkedList<>();
 		for (int i = 0; i < rooms.length; i++)	// Populate with completely enclosed cells
@@ -43,7 +53,7 @@ public class Maze {	// TODO DFS shortest path
 	 * Traverses the maze using BFS until the exit cell is encountered.
 	 */
 	public void traverseBFS() {
-		if (!generated)	// Can't traverse a non-existent maze
+		if (!generated || !discoveryOrderBFS.isEmpty())	// Can't traverse a non-existent maze / Already traversed
 			return;
 		
 		Map<Integer, Integer> distance = new HashMap<>();	// For solution
@@ -68,8 +78,19 @@ public class Maze {	// TODO DFS shortest path
 					distance.put(neighbor, distance.get(currentSource) + 1);
 					discoveryOrderBFS.put(neighbor, time);	// Neighbor discovery time
 					
-					if (neighbor == getLength() - 1)	// Located end cell
+					if (!listeners.isEmpty()) {
+						updateMazePrintListeners(discoveryOrderBFS);	// New marker placed, update listeners
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					
+					if (neighbor == getLength() - 1) {	// Located end cell
 						q.clear();	// Force early BFS loop termination
+						break;	// Ignore other neighbors
+					}
 					else
 						q.add(neighbor);	// Enqueue neighbor
 				}
@@ -84,6 +105,15 @@ public class Maze {	// TODO DFS shortest path
 				if (distance.get(neighbor) != null && distance.get(neighbor) < distance.get(currentBacktrack)) {	// Going in correct direction
 					currentBacktrack = neighbor;
 					shortestPathBFS.put(neighbor, SHORTEST_PATH_MARKER);
+					
+					if (!listeners.isEmpty()) {
+						updateMazePrintListeners(shortestPathBFS);	// New BFS marker placed, update listeners
+						try {
+							Thread.sleep(10);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
 				}
 			}
 		}
@@ -93,7 +123,7 @@ public class Maze {	// TODO DFS shortest path
 	 * Traverses the maze using a Stack-implemented DFS until the exit cell is encountered.
 	 */
 	public void traverseDFSStack() {
-		if (!generated)	// Can't traverse a non-existent maze
+		if (!generated || !discoveryOrderDFSStack.isEmpty())	// Can't traverse a non-existent maze / Already traversed
 			return;
 		
 		Map<Integer, Color> colors = new HashMap<>();	// Track colors of vertices by index
@@ -106,6 +136,7 @@ public class Maze {	// TODO DFS shortest path
 		
 		colors.put(currentCell, Color.GREY);	// Discover starting cell
 		discoveryOrderDFSStack.put(currentCell, time++);	// Starting cell discovery time (then increment)
+		shortestPathDFSStack.put(currentCell, SHORTEST_PATH_MARKER);	// Mark starting cell
 		s.push(currentCell);	// Available for backtracking to
 		
 		while (visitedCells < totalCells) {
@@ -115,9 +146,19 @@ public class Maze {	// TODO DFS shortest path
 					visitedCells++;	// Visited new cell
 					colors.put(neighbor, Color.GREY);	// Discovered cell
 					discoveryOrderDFSStack.put(neighbor, time++);	// Discovery time, then increment
+					shortestPathDFSStack.put(neighbor, SHORTEST_PATH_MARKER);	// Mark currently taken path
 					s.push(currentCell);	// Available for backtracking to
 					currentCell = neighbor;	// Move to new cell
 					backTrack = false;	// No need to backtrack
+					
+					if (!listeners.isEmpty()) {
+						updateMazePrintListeners(shortestPathDFSStack);	// New marker placed, update listeners
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
 					
 					if (neighbor == getLength() - 1)	// Located end cell
 						visitedCells = totalCells;	// Force early DFS termination
@@ -125,14 +166,26 @@ public class Maze {	// TODO DFS shortest path
 					break;	// Don't care about leftover neighbors
 				}
 			}
-			if (backTrack)
+			if (backTrack) {
+				shortestPathDFSStack.remove(currentCell);	// Backtracked, so this cell not in shortest path
+				
+				if (!listeners.isEmpty()) {
+					updateMazePrintListeners(shortestPathDFSStack);	// Old marker removed, update listeners
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
 				currentCell = s.pop();	// No undiscovered neighbors, backtrack
+			}
 		}
 	}
 	
 	public void traverseDFSRecursive() {
-		if (!generated)	// Can't traverse a non-existent maze
+		if (!generated || !discoveryOrderDFSRecursive.isEmpty())	// Can't traverse a non-existent maze / Already traversed
 			return;
+		
 	  Map<Integer, Color> colors = new HashMap<>(); // Track colors of vertices by index
 	  for (int i = 0; i < openNeighbors.length; i++)
 	   colors.put(i, Color.WHITE); // Initialize all vertices white
@@ -184,7 +237,7 @@ public class Maze {	// TODO DFS shortest path
 		generateRandomPath(new Random(seed));
 	}
 	private void generateRandomPath(Random random) {
-		generated = false;
+		reset();
 		
 		Stack<Integer> cellStack = new Stack<>();
 		int currentCell = 0, visitedCells = 1, totalCells = getLength();
@@ -310,6 +363,12 @@ public class Maze {	// TODO DFS shortest path
 	}
 	
 	/**
+	 * @return number of cell along each edge
+	 */
+	public int getEdgeLength() {
+		return size;
+	}
+	/**
 	 * @return total number of cells
 	 */
 	public int getLength() {
@@ -320,53 +379,63 @@ public class Maze {	// TODO DFS shortest path
 	 * @return String representation of maze
 	 */
 	public String buildString() {
-		return buildString(null, false);
+		return buildString(null, false, 0);
+	}
+	public String buildStringForDisplay() {
+		return buildStringOverrideWidth(null, DISPLAY_WIDTH);
 	}
 	/**
 	 * @param uglyStyle only print last character of each cell value
 	 * @return String representation of maze, with cell discovery time during BFS traversal printed in center of each cell
 	 */
 	public String buildStringBFS(boolean uglyStyle) {
-		return buildString(discoveryOrderBFS, uglyStyle);
+		return buildString(discoveryOrderBFS, uglyStyle, 0);
 	}
 	/**
 	 * @param uglyStyle only print last character of each cell value
 	 * @return String representation of maze, with cell discovery time during DFS-Stack traversal printed in center of each cell
 	 */
 	public String buildStringDFSStack(boolean uglyStyle) {
-		return buildString(discoveryOrderDFSStack, uglyStyle);
+		return buildString(discoveryOrderDFSStack, uglyStyle, 0);
 	}
 	/**
 	 * @param uglyStyle only print last character of each cell value
 	 * @return String representation of maze, with cell discovery time during DFS-Recursive traversal printed in center of each cell
 	 */
 	public String buildStringDFSRecursive(boolean uglyStyle) {
-		return buildString(discoveryOrderDFSRecursive, uglyStyle);
+		return buildString(discoveryOrderDFSRecursive, uglyStyle, 0);
 	}
 	
 	/**
 	 * @return String representation of maze with shortest path found by BFS highlighted by {@value #SHORTEST_PATH_CHAR}.
 	 */
 	public String buildStringShortestPathBFS() {
-		return buildString(shortestPathBFS, false);
+		return buildString(shortestPathBFS, false, 0);
 	}
 	/**
 	 * @return String representation of maze with shortest path found by DFS-Stack highlighted by {@value #SHORTEST_PATH_CHAR}.
 	 */
 	public String buildStringShortestPathDFSStack() {
-		return buildString(shortestPathDFSStack, false);
+		return buildString(shortestPathDFSStack, false, 0);
 	}
 	/**
 	 * @return String representation of maze with shortest path found by DFS-Recursive highlighted by {@value #SHORTEST_PATH_CHAR}.
 	 */
 	public String buildStringShortestPathDFSRecursive() {
-		return buildString(shortestPathDFSRecursive, false);
+		return buildString(shortestPathDFSRecursive, false, 0);
 	}
 
-	private String buildString(Map<Integer, Integer> cellValues, boolean uglyStyle) {
+	private String buildStringOverrideWidth(Map<Integer, Integer> cellValues, int overrideWidth) {
+		return buildString(cellValues, false, overrideWidth);
+	}
+	private String buildString(Map<Integer, Integer> cellValues, boolean uglyStyle, int overrideWidth) {
 		int cellWidth = 1;	// Default cell width
-		if (cellValues != null && !uglyStyle)	// Expand cell width to accommodate values
-			cellWidth = String.valueOf(Misc.max(cellValues)).length();	// Number of chars in greatest value
+		if (overrideWidth > 0)
+			cellWidth = overrideWidth;
+		else {
+			if (cellValues != null && !uglyStyle)	// Expand cell width to accommodate values
+				cellWidth = String.valueOf(Misc.max(cellValues)).length();	// Number of chars in greatest value
+		}
 		String display = "";
 		
 		for (int i = 0; i < size; i++) {	// Top edge of maze left->right
@@ -423,6 +492,15 @@ public class Maze {	// TODO DFS shortest path
 			display += "\n";
 		}
 		return display;
+	}
+	
+	public void addMazePrintListener(MazePrintListener listener) {
+		listeners.add(listener);
+		System.out.println("Added listener");
+	}
+	private void updateMazePrintListeners(Map<Integer, Integer> cellValues) {
+		for (MazePrintListener listener : listeners)
+			listener.updateMaze(buildStringOverrideWidth(cellValues, DISPLAY_WIDTH));
 	}
 	
 	/**
