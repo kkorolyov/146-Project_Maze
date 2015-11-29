@@ -50,8 +50,8 @@ public class Misc {
 	}
 	
 	/**
-	 * @param values map of values to located maximum value of
-	 * @return maximum value of map
+	 * @param values map of keys and their values
+	 * @return maximum value
 	 */
 	public static int max(Map<Integer, Integer> values) {	// Calculates max value in map
 		int max = 0;
