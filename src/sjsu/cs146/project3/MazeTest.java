@@ -118,6 +118,41 @@ public class MazeTest {
 												+ "+-+-+-+ +\n";
 		assertEquals(expectedMaze, testMaze.buildString());
 	}
+	@Test
+	public void testSeed0() {
+		testMaze = new Maze(4);	// Manually-set expected String for 4x4 maze
+		testMaze.generateRandomPath(testSeed);
+		String expectedMaze = "+ +-+-+-+\n"
+												+ "| |     |\n"
+												+ "+ + +-+-+\n"
+												+ "| |     |\n"
+												+ "+ +-+-+ +\n"
+												+ "|   |   |\n"
+												+ "+-+ + + +\n"
+												+ "|     | |\n"
+												+ "+-+-+-+ +\n";
+		
+		assertEquals(expectedMaze, testMaze.buildString());
+	}
+	@Test
+	public void testShortestPath() {
+		testMaze = new Maze(4);	// Manually-set expected String for 4x4 maze
+		testMaze.generateRandomPath(testSeed);
+		testMaze.traverseBFS();
+		testMaze.traverseDFSStack();
+		String expectedMaze = "+ +-+-+-+\n"
+												+ "|#|     |\n"
+												+ "+ + +-+-+\n"
+												+ "|#|     |\n"
+												+ "+ +-+-+ +\n"
+												+ "|# #|# #|\n"
+												+ "+-+ + + +\n"
+												+ "|  # #|#|\n"
+												+ "+-+-+-+ +\n";
+		
+		assertEquals(expectedMaze, testMaze.buildStringShortestPathBFS());
+		assertEquals(expectedMaze, testMaze.buildStringShortestPathDFSStack());
+	}
 	
 	@Test
 	public void displayMaze() {
