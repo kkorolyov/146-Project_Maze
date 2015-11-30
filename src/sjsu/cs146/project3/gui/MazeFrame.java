@@ -13,6 +13,9 @@ import javax.swing.JTextArea;
 
 import sjsu.cs146.project3.Maze;
 
+/**
+ * Displays maze traversals in real time.
+ */
 public class MazeFrame extends JFrame implements MazePrintListener {
 	private static final long serialVersionUID = 9084829050844998479L;
 	private static final int[] MAZE_SIZES = {2, 4, 8, 16};
@@ -45,6 +48,7 @@ public class MazeFrame extends JFrame implements MazePrintListener {
 	}
 	private void buildMazeDisplay() {
 		mazeDisplay.setFont(new Font("Monospaced", Font.BOLD, 12));
+		mazeDisplay.setEditable(false);
 		add(mazeDisplay, BorderLayout.CENTER);
 	}
 	private void buildSizeButtonPanel() {
@@ -70,6 +74,8 @@ public class MazeFrame extends JFrame implements MazePrintListener {
 			public void actionPerformed(ActionEvent e) {
 				new Thread() {
 					public void run() {
+						enableButtons(false);
+
 						maze.generateRandomPath();	// Regenerate
 						String size = String.valueOf(maze.getEdgeLength());
 						mazeDisplay.setText(	maze.buildStringForDisplay()
@@ -79,7 +85,10 @@ public class MazeFrame extends JFrame implements MazePrintListener {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
+
 						maze.traverseBFS();
+						
+						enableButtons(true);
 					}
 				}.start();
 			}
@@ -89,6 +98,8 @@ public class MazeFrame extends JFrame implements MazePrintListener {
 			public void actionPerformed(ActionEvent e) {
 				new Thread() {
 					public void run() {
+						enableButtons(false);
+
 						maze.generateRandomPath();	// Regenerate
 						String size = String.valueOf(maze.getEdgeLength());
 						mazeDisplay.setText(	maze.buildStringForDisplay()
@@ -99,6 +110,8 @@ public class MazeFrame extends JFrame implements MazePrintListener {
 							e.printStackTrace();
 						}
 						maze.traverseDFSStack();
+						
+						enableButtons(true);
 					}
 				}.start();
 			}
@@ -107,6 +120,13 @@ public class MazeFrame extends JFrame implements MazePrintListener {
 		traverseButtonPanel.add(bfsButton);
 		traverseButtonPanel.add(dfsButton);
 		add(traverseButtonPanel, BorderLayout.SOUTH);
+	}
+	
+	private void enableButtons(boolean locked) {
+		for (JButton button : sizeButtons)
+			button.setEnabled(locked);
+		bfsButton.setEnabled(locked);
+		dfsButton.setEnabled(locked);
 	}
 
 	@Override

@@ -13,8 +13,8 @@ import sjsu.cs146.project3.gui.MazePrintListener;
 public class Maze {
 	public static final int OUT_OF_BOUNDS = -1;	// Marker for out of bounds cell
 	public static final int DISPLAY_WIDTH = 5;	// Width of cells in GUI display
-	public static final int SHORTEST_PATH_MARKER = -3;	// int marker for cell along shortest path
-	public static final String SHORTEST_PATH_CHAR = "#";	// Marks cells along shortest path
+	public static final int SHORTEST_PATH_TRIAL_MARKER = -6, SHORTEST_PATH_MARKER = -3;	// int marker for cell along shortest path
+	public static final String SHORTEST_PATH_TRIAL_CHAR = "^", SHORTEST_PATH_CHAR = "#";	// Marks cells along shortest path
 	
 	private int size;	// Size of each edge of maze
 	private boolean generated;	// If maze has been generated
@@ -56,6 +56,8 @@ public class Maze {
 		if (!generated || !discoveryOrderBFS.isEmpty())	// Can't traverse a non-existent maze / Already traversed
 			return;
 		
+		Map<Integer, Integer> shortestPathBFSDisplay = new HashMap<>();	// To display path with 2 types of markers without infringing on shortestPathBFS
+		
 		Map<Integer, Integer> distance = new HashMap<>();	// For solution
 		Map<Integer, Color> colors = new HashMap<>();	// Track colors of vertices by index
 		for (int i = 0; i < openNeighbors.length; i++)
@@ -67,7 +69,7 @@ public class Maze {
 		colors.put(0, Color.GREY);	// Discovered source vertex
 		distance.put(0, 0);
 		discoveryOrderBFS.put(0, time);	// Source vertex discovery time
-		shortestPathBFS.put(0, SHORTEST_PATH_MARKER);
+		shortestPathBFSDisplay.put(0, SHORTEST_PATH_TRIAL_MARKER);	// Testing phase
 		q.add(0);	// Enqueue source vertex
 		
 		while (!q.isEmpty()) {
@@ -78,10 +80,10 @@ public class Maze {
 					colors.put(neighbor, Color.GREY);	// Neighbor discovered
 					distance.put(neighbor, distance.get(currentSource) + 1);
 					discoveryOrderBFS.put(neighbor, time);	// Neighbor discovery time
-					shortestPathBFS.put(neighbor, SHORTEST_PATH_MARKER);
+					shortestPathBFSDisplay.put(neighbor, SHORTEST_PATH_TRIAL_MARKER);
 					
 					if (!listeners.isEmpty()) {
-						updateMazePrintListeners(shortestPathBFS);	// New marker placed, update listeners
+						updateMazePrintListeners(shortestPathBFSDisplay);	// New marker placed, update listeners
 						try {
 							Thread.sleep(100);	// For easier following of displayed path changes
 						} catch (InterruptedException e) {
@@ -99,20 +101,21 @@ public class Maze {
 				colors.put(currentSource, Color.BLACK);	// Source fully explored
 			}
 		}
-		shortestPathBFS.clear();	// Now interested in backtracking
 		int currentBacktrack = getLength() - 1;	// Start backtracking from end cell
 		shortestPathBFS.put(currentBacktrack, SHORTEST_PATH_MARKER);
+		shortestPathBFSDisplay.put(currentBacktrack, SHORTEST_PATH_MARKER);	// Backtracking phase
 		
 		while (currentBacktrack != 0) {	// Backtrack to start cell
 			for (int neighbor : openNeighbors[currentBacktrack]) {
 				if (distance.get(neighbor) != null && distance.get(neighbor) < distance.get(currentBacktrack)) {	// Going in correct direction
 					currentBacktrack = neighbor;
 					shortestPathBFS.put(neighbor, SHORTEST_PATH_MARKER);
-					
+					shortestPathBFSDisplay.put(currentBacktrack, SHORTEST_PATH_MARKER);
+
 					if (!listeners.isEmpty()) {
-						updateMazePrintListeners(shortestPathBFS);	// New BFS marker placed, update listeners
+						updateMazePrintListeners(shortestPathBFSDisplay);	// New BFS marker placed, update listeners
 						try {
-							Thread.sleep(10);
+							Thread.sleep(20);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -472,6 +475,8 @@ public class Maze {
 					String currentValueString = String.valueOf(currentValue);	// To String
 					if (currentValue == SHORTEST_PATH_MARKER)	// Intercept hash marker (Avoids refactoring method to accept Map<Integer, String>)
 						currentValueString = SHORTEST_PATH_CHAR;
+					else if (currentValue == SHORTEST_PATH_TRIAL_MARKER)
+						currentValueString = SHORTEST_PATH_TRIAL_CHAR;
 					
 					if (uglyStyle)
 						display += Misc.chop(currentValueString);	// Print last digit of value
