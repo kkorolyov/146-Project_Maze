@@ -11,7 +11,6 @@ import sjsu.cs146.project3.props.Props;
  * Provides a terminal interface for setting {@link MazeTest} properties and running {@link MazeTest}.
  */
 public class TestDriver {
-	private static final String RUN_TEST_CMD = "0";
 	private static final char SWITCH_PRESET = '1', SWITCH_RANDOM = '2', SWITCH_MAZE = '3', SWITCH_BFS = '4', SWITCH_DFS_STACK = '5', SWITCH_DFS_RECURSIVE = '6', SWITCH_CENTERED = '7', SWITCH_CHOPPED = '8', SWITCH_SHORTEST = '9'; 
 
 	public static void main(String[] args) {
@@ -23,9 +22,15 @@ public class TestDriver {
 		Scanner input = new Scanner(System.in);
 		String cmd = "";
 		
-		while (!cmd.equals(RUN_TEST_CMD) ) {
+		do {
+			System.out.print("Enter maze edge length: ");
+			cmd = input.nextLine();
+			} while (cmd.equals("") || !isNumber(cmd));	// Validate that number is input for edge length
+		Props.size = Integer.parseInt(cmd);
+		System.out.println();	
+		while (true) {			
 			System.out.println(	"Enter the appropriate number to activate/deactivate\n"
-												+ "Enter '0' or nothing to run MazeTest with current properties\n"
+												+ "Enter nothing to run MazeTest with current properties\n"
 												+ "Current Props:\n"
 												+ SWITCH_PRESET + ". print maze generated from preset seed----" + String.valueOf(Props.printPreset).toUpperCase() + "\n"
 												+ SWITCH_RANDOM + ". print maze generated from random seed----" + String.valueOf(Props.printRandom).toUpperCase() + "\n"
@@ -70,5 +75,12 @@ public class TestDriver {
 			}
 		}		
 		input.close();
+	}
+	private static boolean isNumber(String input) {
+		for (char digit : input.toCharArray()) {
+			if (!Character.isDigit(digit))
+				return false;
+		}
+		return true;
 	}
 }

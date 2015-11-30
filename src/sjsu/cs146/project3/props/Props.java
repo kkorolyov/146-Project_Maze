@@ -6,6 +6,10 @@ package sjsu.cs146.project3.props;
  */
 public class Props {
 	/**
+	 * Size of maze to print
+	 */
+	public static int size = 4;
+	/**
 	 * If {@code true}, print maze generated from preset seed
 	 * */
 	public static boolean printPreset = true;

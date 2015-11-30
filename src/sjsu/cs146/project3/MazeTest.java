@@ -14,7 +14,7 @@ import sjsu.cs146.project3.props.Props;
  * Provides methods for testing {@link Maze} functionality.
  */
 public class MazeTest {	
-	private static int testSize = 4;
+	private static int testSize = Props.size;
 	private static long testSeed = 0;
 	private static Maze savedPresetMaze, savedRandomMaze;
 	private Maze testMaze;
@@ -156,6 +156,7 @@ public class MazeTest {
 	
 	@Test
 	public void displayMaze() {
+		System.out.println("Maze Size = " + String.valueOf(testSize) + "x" + String.valueOf(testSize));
 		if (Props.printMaze) {
 			printMaze();
 		}
