@@ -475,10 +475,19 @@ public class Maze {
 			Cell currentCell = getCell(getLinearPosition(i, 0));	// Each row's SOUTH walls are next row's NORTH walls, only print NORTH walls for top row
 			if (i == 0)	// Print left corner only for leftmost column
 				display += "+";
+			
+			String wallString = Misc.repeat(' ', cellWidth);	// Default no wall
 			if (currentCell.hasWall(Wall.NORTH))
-				display += Misc.repeat('-', cellWidth);	// NORTH wall
-			else
-				display += Misc.repeat(' ', cellWidth);	// No NORTH wall
+				wallString = Misc.repeat('-', cellWidth);	// NORTH wall
+			else if (cellValues != null && cellValues.get(getLinearPosition(i, 0)) != null && cellValues.get(getNeighbor(getLinearPosition(i, 0), Wall.NORTH)) != null) {
+				int currentCellIndex = getLinearPosition(i, 0), northCellIndex = getNeighbor(currentCellIndex, Wall.NORTH);
+				int currentCellValue = cellValues.get(currentCellIndex), northCellValue = cellValues.get(northCellIndex);
+				if (currentCellValue == SHORTEST_PATH_MARKER && northCellValue == SHORTEST_PATH_MARKER)	// Along shortest path
+					wallString = Misc.center(SHORTEST_PATH_CHAR, cellWidth);
+				else if ((currentCellValue == SHORTEST_PATH_TRIAL_MARKER && northCellValue == SHORTEST_PATH_TRIAL_MARKER) || (currentCellValue == SHORTEST_PATH_MARKER && northCellValue == SHORTEST_PATH_TRIAL_MARKER) || (currentCellValue == SHORTEST_PATH_TRIAL_MARKER && northCellValue == SHORTEST_PATH_MARKER))	// Transition between shortest path and trial path
+					wallString = Misc.center(SHORTEST_PATH_TRIAL_CHAR, cellWidth);
+			}
+			display += wallString;
 			display += "+";	// Right corner
 		}
 		display += "\n";	// Top edge of maze done
@@ -487,10 +496,18 @@ public class Maze {
 			for (int i = 0; i < size; i++) {	// Mid part of current row cells
 				Cell currentCell = getCell(getLinearPosition(i, j));
 				if (i == 0) {	// Each column's EAST walls are next column's WEST walls, only print WEST walls for leftmost column
+					String wallString = " ";	// Default no wall
 					if (currentCell.hasWall(Wall.WEST))
-						display += "|";	// WEST wall
-					else
-						display += " ";	// No WEST wall
+						wallString = "|";	// WEST wall
+					else if (cellValues != null && cellValues.get(getLinearPosition(i, j)) != null && cellValues.get(getNeighbor(getLinearPosition(i, j), Wall.WEST)) != null) {
+						int currentCellIndex = getLinearPosition(i, j), westCellIndex = getNeighbor(currentCellIndex, Wall.WEST);
+						int currentCellValue = cellValues.get(currentCellIndex), westCellValue = cellValues.get(westCellIndex);
+						if (currentCellValue == SHORTEST_PATH_MARKER && westCellValue == SHORTEST_PATH_MARKER)	// Along shortest path
+							wallString = SHORTEST_PATH_CHAR;
+						else if ((currentCellValue == SHORTEST_PATH_TRIAL_MARKER && westCellValue == SHORTEST_PATH_TRIAL_MARKER) || (currentCellValue == SHORTEST_PATH_MARKER && westCellValue == SHORTEST_PATH_TRIAL_MARKER) || (currentCellValue == SHORTEST_PATH_TRIAL_MARKER && westCellValue == SHORTEST_PATH_MARKER))	// Transition between shortest path and trial path
+							wallString = SHORTEST_PATH_TRIAL_CHAR;
+					}
+					display += wallString;
 				}
 				if (cellValues != null && cellValues.get(getLinearPosition(i, j)) != null) {	// Value exists for current cell
 					int currentValue = cellValues.get(getLinearPosition(i, j));	// Current value to print
@@ -508,20 +525,37 @@ public class Maze {
 				else	// No value to print
 					display += Misc.repeat(' ', cellWidth);
 				
+				String wallString = " ";	// Default no wall
 				if (currentCell.hasWall(Wall.EAST))
-					display += "|";	// EAST wall
-				else
-					display += " ";	// No EAST wall
+					wallString = "|";	// EAST wall
+				else if (cellValues != null && cellValues.get(getLinearPosition(i, j)) != null && cellValues.get(getNeighbor(getLinearPosition(i, j), Wall.EAST)) != null) {
+					int currentCellIndex = getLinearPosition(i, j), eastCellIndex = getNeighbor(currentCellIndex, Wall.EAST);
+					int currentCellValue = cellValues.get(currentCellIndex), eastCellValue = cellValues.get(eastCellIndex);
+					if (currentCellValue == SHORTEST_PATH_MARKER && eastCellValue == SHORTEST_PATH_MARKER)	// Along shortest path
+						wallString = SHORTEST_PATH_CHAR;
+					else if ((currentCellValue == SHORTEST_PATH_TRIAL_MARKER && eastCellValue == SHORTEST_PATH_TRIAL_MARKER) || (currentCellValue == SHORTEST_PATH_MARKER && eastCellValue == SHORTEST_PATH_TRIAL_MARKER) || (currentCellValue == SHORTEST_PATH_TRIAL_MARKER && eastCellValue == SHORTEST_PATH_MARKER))	// Transition between shortest path and trial path
+						wallString = SHORTEST_PATH_TRIAL_CHAR;
+				}
+				display += wallString;
 			}
 			display += "\n";	// Mid part of current row done
 			for (int i = 0; i < size; i++) {	// Bottom part of current row cells
 				Cell currentCell = getCell(getLinearPosition(i, j));
 				if (i == 0)
 					display += "+";
+				
+				String wallString = Misc.repeat(' ', cellWidth);	// Default no wall
 				if (currentCell.hasWall(Wall.SOUTH))
-					display += Misc.repeat('-', cellWidth);
-				else
-					display += Misc.repeat(' ', cellWidth);
+					wallString = Misc.repeat('-', cellWidth);	// SOUTH wall
+				else if (cellValues != null && cellValues.get(getLinearPosition(i, j)) != null && cellValues.get(getNeighbor(getLinearPosition(i, j), Wall.SOUTH)) != null) {
+					int currentCellIndex = getLinearPosition(i, j), southCellIndex = getNeighbor(currentCellIndex, Wall.SOUTH);
+					int currentCellValue = cellValues.get(currentCellIndex), southCellValue = cellValues.get(southCellIndex);
+					if (currentCellValue == SHORTEST_PATH_MARKER && southCellValue == SHORTEST_PATH_MARKER)	// Along shortest path
+						wallString = Misc.center(SHORTEST_PATH_CHAR, cellWidth);
+					else if ((currentCellValue == SHORTEST_PATH_TRIAL_MARKER && southCellValue == SHORTEST_PATH_TRIAL_MARKER) || (currentCellValue == SHORTEST_PATH_MARKER && southCellValue == SHORTEST_PATH_TRIAL_MARKER) || (currentCellValue == SHORTEST_PATH_TRIAL_MARKER && southCellValue == SHORTEST_PATH_MARKER))	// Transition between shortest path and trial path
+						wallString = Misc.center(SHORTEST_PATH_TRIAL_CHAR, cellWidth);
+				}
+				display += wallString;
 				display += "+";
 			}
 			display += "\n";

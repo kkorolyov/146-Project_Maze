@@ -142,12 +142,12 @@ public class MazeTest {
 		testMaze.traverseDFSStack();
 		String expectedMaze = "+ +-+-+-+\n"
 												+ "|#|     |\n"
-												+ "+ + +-+-+\n"
+												+ "+#+ +-+-+\n"
 												+ "|#|     |\n"
-												+ "+ +-+-+ +\n"
-												+ "|# #|# #|\n"
-												+ "+-+ + + +\n"
-												+ "|  # #|#|\n"
+												+ "+#+-+-+ +\n"
+												+ "|###|###|\n"
+												+ "+-+#+#+#+\n"
+												+ "|  ###|#|\n"
 												+ "+-+-+-+ +\n";
 		
 		assertEquals(expectedMaze, testMaze.buildStringShortestPathBFS());
