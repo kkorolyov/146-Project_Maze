@@ -56,7 +56,7 @@ public class Maze {
 		if (!generated || !discoveryOrderBFS.isEmpty())	// Can't traverse a non-existent maze / Already traversed
 			return;
 		
-		Map<Integer, Integer> shortestPathBFSDisplay = new HashMap<>();	// To display path with 2 types of markers without infringing on shortestPathBFS
+		Map<Integer, Integer> shortestPathBFSDisplay = new HashMap<>();	// To display path with 2 types of markers without infringing on tested map
 		
 		Map<Integer, Integer> distance = new HashMap<>();	// For solution
 		Map<Integer, Color> colors = new HashMap<>();	// Track colors of vertices by index
@@ -69,7 +69,10 @@ public class Maze {
 		colors.put(0, Color.GREY);	// Discovered source vertex
 		distance.put(0, 0);
 		discoveryOrderBFS.put(0, time);	// Source vertex discovery time
-		shortestPathBFSDisplay.put(0, SHORTEST_PATH_TRIAL_MARKER);	// Testing phase
+		
+		if (!listeners.isEmpty())
+			shortestPathBFSDisplay.put(0, SHORTEST_PATH_TRIAL_MARKER);	// Testing phase
+		
 		q.add(0);	// Enqueue source vertex
 		
 		while (!q.isEmpty()) {
@@ -80,7 +83,9 @@ public class Maze {
 					colors.put(neighbor, Color.GREY);	// Neighbor discovered
 					distance.put(neighbor, distance.get(currentSource) + 1);
 					discoveryOrderBFS.put(neighbor, time);	// Neighbor discovery time
-					shortestPathBFSDisplay.put(neighbor, SHORTEST_PATH_TRIAL_MARKER);
+					
+					if (!listeners.isEmpty())
+						shortestPathBFSDisplay.put(neighbor, SHORTEST_PATH_TRIAL_MARKER);
 					
 					if (!listeners.isEmpty()) {
 						updateMazePrintListeners(shortestPathBFSDisplay);	// New marker placed, update listeners
@@ -103,14 +108,18 @@ public class Maze {
 		}
 		int currentBacktrack = getLength() - 1;	// Start backtracking from end cell
 		shortestPathBFS.put(currentBacktrack, SHORTEST_PATH_MARKER);
-		shortestPathBFSDisplay.put(currentBacktrack, SHORTEST_PATH_MARKER);	// Backtracking phase
+		
+		if (!listeners.isEmpty())
+			shortestPathBFSDisplay.put(currentBacktrack, SHORTEST_PATH_MARKER);	// Backtracking phase
 		
 		while (currentBacktrack != 0) {	// Backtrack to start cell
 			for (int neighbor : openNeighbors[currentBacktrack]) {
 				if (distance.get(neighbor) != null && distance.get(neighbor) < distance.get(currentBacktrack)) {	// Going in correct direction
 					currentBacktrack = neighbor;
 					shortestPathBFS.put(neighbor, SHORTEST_PATH_MARKER);
-					shortestPathBFSDisplay.put(currentBacktrack, SHORTEST_PATH_MARKER);
+					
+					if (!listeners.isEmpty())
+						shortestPathBFSDisplay.put(currentBacktrack, SHORTEST_PATH_MARKER);
 
 					if (!listeners.isEmpty()) {
 						updateMazePrintListeners(shortestPathBFSDisplay);	// New BFS marker placed, update listeners
@@ -132,6 +141,8 @@ public class Maze {
 		if (!generated || !discoveryOrderDFSStack.isEmpty())	// Can't traverse a non-existent maze / Already traversed
 			return;
 		
+		Map<Integer, Integer> shortestPathDFSStackDisplay = new HashMap<>();	// To display path with 2 types of markers without infringing on tested map
+
 		Map<Integer, Color> colors = new HashMap<>();	// Track colors of vertices by index
 		for (int i = 0; i < openNeighbors.length; i++)
 			colors.put(i, Color.WHITE);	// Initialize all vertices white
@@ -143,6 +154,10 @@ public class Maze {
 		colors.put(currentCell, Color.GREY);	// Discover starting cell
 		discoveryOrderDFSStack.put(currentCell, time++);	// Starting cell discovery time (then increment)
 		shortestPathDFSStack.put(currentCell, SHORTEST_PATH_MARKER);	// Mark starting cell
+		
+		if (!listeners.isEmpty())
+			shortestPathDFSStackDisplay.put(currentCell, SHORTEST_PATH_MARKER);
+		
 		s.push(currentCell);	// Available for backtracking to
 		
 		while (visitedCells < totalCells) {
@@ -153,12 +168,16 @@ public class Maze {
 					colors.put(neighbor, Color.GREY);	// Discovered cell
 					discoveryOrderDFSStack.put(neighbor, time++);	// Discovery time, then increment
 					shortestPathDFSStack.put(neighbor, SHORTEST_PATH_MARKER);	// Mark currently taken path
+					
+					if (!listeners.isEmpty())
+						shortestPathDFSStackDisplay.put(neighbor, SHORTEST_PATH_MARKER);
+					
 					s.push(currentCell);	// Available for backtracking to
 					currentCell = neighbor;	// Move to new cell
 					backTrack = false;	// No need to backtrack
 					
 					if (!listeners.isEmpty()) {
-						updateMazePrintListeners(shortestPathDFSStack);	// New marker placed, update listeners
+						updateMazePrintListeners(shortestPathDFSStackDisplay);	// New marker placed, update listeners
 						try {
 							Thread.sleep(100);
 						} catch (InterruptedException e) {
@@ -175,8 +194,11 @@ public class Maze {
 			if (backTrack) {
 				shortestPathDFSStack.remove(currentCell);	// Backtracked, so this cell not in shortest path
 				
+				if (!listeners.isEmpty())
+					shortestPathDFSStackDisplay.put(currentCell, SHORTEST_PATH_TRIAL_MARKER);	// Leave a marker when displaying
+				
 				if (!listeners.isEmpty()) {
-					updateMazePrintListeners(shortestPathDFSStack);	// Old marker removed, update listeners
+					updateMazePrintListeners(shortestPathDFSStackDisplay);	// Old marker removed, update listeners
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {

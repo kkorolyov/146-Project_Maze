@@ -14,7 +14,7 @@ import sjsu.cs146.project3.props.Props;
  * Provides methods for testing {@link Maze} functionality.
  */
 public class MazeTest {	
-	private static int testSize = 4;
+	private static int testSize = 16;
 	private static long testSeed = 0;
 	private static Maze savedPresetMaze, savedRandomMaze;
 	private Maze testMaze;
