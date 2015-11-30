@@ -47,6 +47,14 @@ public class Maze {
 		
 		rooms[0].removeWall(Wall.NORTH);	// Start cell
 		rooms[rooms.length - 1].removeWall(Wall.SOUTH);	// End cell
+		
+		discoveryOrderBFS.clear();
+		discoveryOrderDFSStack.clear();
+		discoveryOrderDFSRecursive.clear();
+		
+		shortestPathBFS.clear();
+		shortestPathDFSStack.clear();
+		shortestPathDFSRecursive.clear();
 	}
 	
 	/**
@@ -289,14 +297,6 @@ public class Maze {
 			else
 				currentCell = cellStack.pop();
 		}		
-		discoveryOrderBFS.clear();	// Old discovery order now invalid
-		discoveryOrderDFSStack.clear();
-		discoveryOrderDFSRecursive.clear();
-		
-		shortestPathBFS.clear();	// Old shortest path now invalid
-		shortestPathDFSStack.clear();
-		shortestPathDFSRecursive.clear();
-		
 		generated = true;
 	}
 	
