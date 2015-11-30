@@ -14,7 +14,7 @@ import sjsu.cs146.project3.props.Props;
  * Provides methods for testing {@link Maze} functionality.
  */
 public class MazeTest {	
-	private static int testSize = 16;
+	private static int testSize = 4;
 	private static long testSeed = 0;
 	private static Maze savedPresetMaze, savedRandomMaze;
 	private Maze testMaze;
@@ -159,11 +159,11 @@ public class MazeTest {
 		if (Props.printMaze) {
 			printMaze();
 		}
-		if (Props.printBFS) {
-			printBFS();
-		}
 		if (Props.printDFSStack) {
 			printDFSStack();
+		}
+		if (Props.printBFS) {
+			printBFS();
 		}
 		/*if (Props.printDFSRecursive) {
 			printDFSRecursive();

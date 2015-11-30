@@ -2,7 +2,7 @@ package sjsu.cs146.project3.props;
 
 /**
  * Lazy container class for MazeTest properties.
- * By default, all true.
+ * By default, match project requirements.
  */
 public class Props {
 	/**
@@ -12,7 +12,7 @@ public class Props {
 	/** 
 	 * If {@code true}, print maze generated from random seed
 	 */
-	public static boolean printRandom = true; 
+	public static boolean printRandom = false; 
 	
 	/**
 	 * If {@code true}, print bare maze
@@ -29,12 +29,12 @@ public class Props {
 	/**
 	 * If {@code true}, print DFS-recursive traversal
 	 */
-	public static boolean printDFSRecursive = true;
+	public static boolean printDFSRecursive = false;
 
 	/**
 	 * If {@code true}, print maze traversal with centered values
 	 */
-	public static boolean printValuesCentered = true;
+	public static boolean printValuesCentered = false;
 	/**
 	 * If {@code true}, print maze traversal with last digit of values
 	 */
